@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/loadbarbell_model.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/loadbarbell_notifier.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/utils/ironmaster_dbell_set.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/commonswitch.dart';
 import 'package:flutter/material.dart';
@@ -36,23 +38,29 @@ class _DumbbellSetCheckboxListState extends State<DumbbellSetCheckboxList> {
       "id": 0,
       "value": (gSharedPrefs.dumbbellSetChoice ==
           0), // Temporary Default during development
-      "title": "45lb Set",
+      "title": "45lb IronMaster Set",
     },
     {
       "id": 1,
       "value": (gSharedPrefs.dumbbellSetChoice == 1), //false, // Default
-      "title": "75lb Set",
+      "title": "75lb IronMaster Set",
     },
     {
       "id": 2,
       "value": (gSharedPrefs.dumbbellSetChoice == 2), //false,
-      "title": "120lb Set",
+      "title": "120lb IronMaster Set",
     },
     {
       "id": 3,
       "value": (gSharedPrefs.dumbbellSetChoice ==
           3), //false, //true, // Temporary Default during development
-      "title": "165lb Set",
+      "title": "165lb IronMaster Set",
+    },
+    {
+      "id": 4,
+      "value": (gSharedPrefs.dumbbellSetChoice ==
+          4), //false, //true, // Temporary Default during development
+      "title": "MoJeer 40kg Set",
     },
   ];
 
@@ -275,28 +283,59 @@ class _DumbbellSetCheckboxListState extends State<DumbbellSetCheckboxList> {
                               selected =
                                   "${checkListItems[index]["id"]}, ${checkListItems[index]["title"]}, ${checkListItems[index]["value"]}";
 
+                              ///
+                              /// Set barbell in use
+                              ///
+                              if (index == 4) {
+                                Provider.of<LoadBarbellBlocNotifier>(
+                                  context,
+                                  listen: false,
+                                ).barbellInUse = BarbellType.BARBELL_MOJEER_4kg;
+                              } else {
+                                Provider.of<LoadBarbellBlocNotifier>(
+                                  context,
+                                  listen: false,
+                                ).barbellInUse =
+                                    BarbellType.BARBELL_IRONMASTER_5lb;
+                              }
+
+                              ///
+                              /// Set index of dumbbell set in use
+                              ///
                               Provider.of<WeightRackBlocNotifier>(context,
                                       listen: false)
                                   .dumbbellSet = index;
+
+                              ///
+                              /// Save to preferences
+                              ///
                               gSharedPrefs.dumbbellSetChoice = index;
                               gSharedPrefs.changeIronMasterDumbbellSet(index);
 
+                              ///
+                              /// This is the 5lb weight correction value for the IronMaster dumbbell handle + locking screws.
+                              /// Not used by MoJeer dumbbell set
                               _fiveLbWeight = gSharedPrefs.weighed5LbPlate;
 
                               // Set to max selectable weight index
                               gIronMasterWeightMaxIndex =
-                                  gGetIronMasterDumbbellSetMaxIndex(context);
+                                  gGetDumbbellSetMaxIndex(context);
                               Provider.of<WeightRackBlocNotifier>(
                                 context,
                                 listen: false,
                               ).ironMasterBottomViewWeightIndex =
-                                  gIronMasterWeightMaxIndex - 1;
+                                  gIronMasterWeightMaxIndex;
 
                               gIronMasterBottomViewWeightIndex =
-                                  gIronMasterWeightMaxIndex - 1;
+                                  gIronMasterWeightMaxIndex;
                               // // Set to max selectable weight index
                               // gIronMasterBottomViewWeightIndex =
                               //     gIronMasterWeightMaxIndex;
+
+                              // Reset to zero - JG 9/1
+                              // Provider.of<WeightRackBlocNotifier>(context,
+                              //         listen: false)
+                              //     .desiredWeight = 0.0;
                             });
                           }
                         },
@@ -312,63 +351,69 @@ class _DumbbellSetCheckboxListState extends State<DumbbellSetCheckboxList> {
             ///
             /// TODO:  Note - Updated explorer_widget.dart line 177 to adjust Setting area height.
             ///
-
-            Positioned(
-              // top = number of DB Set seclection items above it (4) * height of each item (64).
-              top: offsetToEndOfCheckboxList, //mediaQuery.size.height * .25,
-              child: _weighed5lbPlateValueWidget(context),
-            ),
+            (Provider.of<WeightRackBlocNotifier>(
+                      context,
+                      listen: false,
+                    ).isIronMasterDumbbellSet ==
+                    true)
+                ? Positioned(
+                    // top = number of DB Set seclection items above it (4) * height of each item (64).
+                    top:
+                        offsetToEndOfCheckboxList, //mediaQuery.size.height * .25,
+                    child: _weighed5lbPlateValueWidget(context),
+                  )
+                : Container(),
 
             ///
-            /// Metric Mode
+            /// Brand Mode
             ///
-            Positioned(
-              // top = number of DB Set seclection items above it (4) * height of each item (64).
-              top: offsetToEndOfCheckboxList + heightOfWeighedButton - 16,
-              child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    'Dumbbell Brand',
-                    // style: TextStyle(color: Colors.white),
-                  ),
-                  StreamBuilder<bool>(
-                      stream: bloc.dumbbellMetricInPoundsStreamed,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return Container();
-                        return Switch(
-                          value: (snapshot.data == false) ? false : true,
-                          // inactiveTrackColor: Colors.black54,
-                          // activeTrackColor: Colors.black54,
-                          // activeColor: Colors.black54,
-                          onChanged: (bool value) {
-                            if (value) {
-                              bloc.changeDumbbellMetricInPounds(true);
-                            } else {
-                              bloc.changeDumbbellMetricInPounds(false);
-                            }
-                          },
-                        );
-                      }),
-                  StreamBuilder<bool>(
-                      stream: bloc.dumbbellMetricInPoundsStreamed,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return Container();
-                        return Text(
-                          (snapshot.data == true)
-                              ? "Iron Master DB"
-                              : "MoJeer DB",
-                          // style: TextStyle(color: Colors.white),
-                        );
-                      }),
-                ],
-              ),
-              // commonSwitch(
-              //     context,
-              //     Provider.of<WeightRackBlocNotifier>(context, listen: false)
-              //         .kiloPoundsSelectionSwitch),
-            ),
+            // Positioned(
+            //   // top = number of DB Set seclection items above it (4) * height of each item (64).
+            //   top: offsetToEndOfCheckboxList + heightOfWeighedButton - 16,
+            //   child: Row(
+            //     mainAxisAlignment:
+            //         MainAxisAlignment.center, // MainAxisAlignment.spaceBetween,
+            //     children: <Widget>[
+            //       Text(
+            //         'Dumbbell Brand',
+            //         // style: TextStyle(color: Colors.white),
+            //       ),
+            //       StreamBuilder<bool>(
+            //           stream: bloc.dumbbellMetricInPoundsStreamed,
+            //           builder: (context, snapshot) {
+            //             if (!snapshot.hasData) return Container();
+            //             return Switch(
+            //               value: (snapshot.data == false) ? false : true,
+            //               // inactiveTrackColor: Colors.black54,
+            //               // activeTrackColor: Colors.black54,
+            //               // activeColor: Colors.black54,
+            //               onChanged: (bool value) {
+            //                 if (value) {
+            //                   bloc.changeDumbbellMetricInPounds(true);
+            //                 } else {
+            //                   bloc.changeDumbbellMetricInPounds(false);
+            //                 }
+            //               },
+            //             );
+            //           }),
+            //       StreamBuilder<bool>(
+            //           stream: bloc.dumbbellMetricInPoundsStreamed,
+            //           builder: (context, snapshot) {
+            //             if (!snapshot.hasData) return Container();
+            //             return Text(
+            //               (snapshot.data == true)
+            //                   ? "Iron Master DB"
+            //                   : "MoJeer DB",
+            //               // style: TextStyle(color: Colors.white),
+            //             );
+            //           }),
+            //     ],
+            //   ),
+            //   // commonSwitch(
+            //   //     context,
+            //   //     Provider.of<WeightRackBlocNotifier>(context, listen: false)
+            //   //         .kiloPoundsSelectionSwitch),
+            // ),
 
             ///
             /// View Mode

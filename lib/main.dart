@@ -327,7 +327,7 @@ class BottomNav extends StatelessWidget {
           //   width: 48,
           //   height: 48,
           // ),
-          label: 'Iron Master DB',
+          label: 'Load Dumbbell',
         ),
         // const NavigationDestination(
         //   icon: Icon(Icons.fitness_center),

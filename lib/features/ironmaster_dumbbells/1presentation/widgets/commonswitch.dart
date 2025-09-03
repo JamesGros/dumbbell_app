@@ -176,10 +176,11 @@ Widget commonIronMasterDumbbellSwitch(BuildContext context) {
                 width: 10,
               )),
       items: [
-        MultiSelectCard(value: '45lb Set', label: '45lb Set'),
-        MultiSelectCard(value: '75lb Set', label: '75lb Set'),
-        MultiSelectCard(value: '120lb Set', label: '120lb Set'),
-        MultiSelectCard(value: '165lb Set', label: '165lb Set'),
+        MultiSelectCard(value: '45lb Set', label: '45lb IronMaster Set'),
+        MultiSelectCard(value: '75lb Set', label: '75lb IronMaster Set'),
+        MultiSelectCard(value: '120lb Set', label: '120lb IronMaster Set'),
+        MultiSelectCard(value: '165lb Set', label: '165lb IronMaster Set'),
+        MultiSelectCard(value: 'MoJeer 40kg Set', label: 'MoJeer 40kg Set'),
       ],
       onChange: (allSelectedItems, selectedItem) {
         if (kDebugMode) {
@@ -189,12 +190,12 @@ Widget commonIronMasterDumbbellSwitch(BuildContext context) {
             .dumbbellSet = gGetDumbbellSetIndex(selectedItem);
 
         // Set maxes
-        gIronMasterWeightMaxIndex = gGetIronMasterDumbbellSetMaxIndex(context);
+        gIronMasterWeightMaxIndex = gGetDumbbellSetMaxIndex(context);
         Provider.of<WeightRackBlocNotifier>(
           context,
           listen: false,
-        ).ironMasterBottomViewWeightIndex = gIronMasterWeightMaxIndex - 1;
+        ).ironMasterBottomViewWeightIndex = gIronMasterWeightMaxIndex;
 
-        gIronMasterBottomViewWeightIndex = gIronMasterWeightMaxIndex - 1;
+        gIronMasterBottomViewWeightIndex = gIronMasterWeightMaxIndex;
       });
 }

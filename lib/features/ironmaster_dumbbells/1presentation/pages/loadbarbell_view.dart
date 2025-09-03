@@ -123,7 +123,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
       TextEditingController();
 
   // int _queryEnteredWeightTopLeft = 55;
-  int _queryEnteredWeightBottomRight = 55;
+  int _queryEnteredWeightBottomRight = 0;
 
   // int _ironMasterTopViewWeightIndex = 0;
   int _ironMasterBottomViewWeightIndex = 0;
@@ -274,7 +274,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
     // Provider.of<WeightRackBlocNotifier>(context, listen: false).dumbbellSet =
     //     gSharedPrefs.dumbbellSetChoice;
 
-    _ironMasterWeightIndexMax = gGetIronMasterDumbbellSetMaxIndex(context);
+    _ironMasterWeightIndexMax = gGetDumbbellSetMaxIndex(context);
     // Provider.of<WeightRackBlocNotifier>(context, listen: false)
     //     .ironMasterWeightMaxIndex = _ironMasterWeightIndexMax;
     gIronMasterWeightMaxIndex = _ironMasterWeightIndexMax;
@@ -683,7 +683,6 @@ class LoadBarbellViewState extends State<LoadBarbellView>
           index = theList[0].length - 1;
         }
         return theList[0][index].toInt();
-        break;
       case 1:
         List<dynamic> theList = JsonDecoder().convert(gGetCurrent75lbWeightList(
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
@@ -693,7 +692,6 @@ class LoadBarbellViewState extends State<LoadBarbellView>
           index = theList[0].length - 1;
         }
         return theList[0][index].toInt();
-        break;
       case 2:
         List<dynamic> theList = JsonDecoder().convert(
             gGetCurrent120lbWeightList(
@@ -704,7 +702,6 @@ class LoadBarbellViewState extends State<LoadBarbellView>
           index = theList[0].length - 1;
         }
         return theList[0][index].toInt();
-        break;
       case 3:
         List<dynamic> theList = JsonDecoder().convert(
             gGetCurrent165lbWeightList(
@@ -716,7 +713,17 @@ class LoadBarbellViewState extends State<LoadBarbellView>
           index = theList[0].length - 1;
         }
         return theList[0][index].toInt();
-        break;
+      case 4:
+        List<dynamic> theList = JsonDecoder().convert(
+
+            ///
+            /// MoJeer doesn't use correction value - always 2kg plates
+            gGetCurrentMoJeerWeightList(2.0));
+        // Validate index
+        if (index >= theList[0].length) {
+          index = theList[0].length - 1;
+        }
+        return theList[0][index].toInt();
       default:
         List<dynamic> theList = JsonDecoder().convert(gGetCurrent75lbWeightList(
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
@@ -766,6 +773,11 @@ class LoadBarbellViewState extends State<LoadBarbellView>
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
                 .weightCorrectionValue);
         break;
+      case 4:
+        return gMoJeer40KgWeightIndexFromPicker2(context, weight);
+        // Provider.of<WeightRackBlocNotifier>(context, listen: false)
+        //     .weightCorrectionValue);
+        break;
       default:
         return gIronMaster45LbWeightIndexFromPicker2(
             weight,
@@ -790,14 +802,20 @@ class LoadBarbellViewState extends State<LoadBarbellView>
       /// IRON MASTER - Update both dumbbells
       ///
       // _queryEnteredWeightTopLeft = 0;
-      _queryEnteredWeightBottomRight =
-          Provider.of<WeightRackBlocNotifier>(context, listen: false)
-              .desiredWeight
-              .toInt();
+      // _queryEnteredWeightBottomRight =
+      //     Provider.of<WeightRackBlocNotifier>(context, listen: false)
+      //         .desiredWeight
+      //         .toInt();
+
+      // JG DEBUG
+
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .desiredWeight = 0;
+      _queryEnteredWeightBottomRight = 0;
 
       // _ironMasterSingleViewWeightIndex = 0;
 
-      _ironMasterWeightIndexMax = gGetIronMasterDumbbellSetMaxIndex(context);
+      _ironMasterWeightIndexMax = gGetDumbbellSetMaxIndex(context);
 
       // Provider.of<WeightRackBlocNotifier>(context, listen: false)
       //     .ironMasterWeightMaxIndex = _ironMasterWeightIndexMax;
@@ -855,7 +873,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
       // _queryEnteredWeightTopLeft = 0;
       // _queryEnteredWeightBottomRight = 0;
 
-      _ironMasterWeightIndexMax = gGetIronMasterDumbbellSetMaxIndex(context);
+      _ironMasterWeightIndexMax = gGetDumbbellSetMaxIndex(context);
 
       gIronMasterWeightMaxIndex = _ironMasterWeightIndexMax;
 
@@ -1640,7 +1658,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "IRON MASTER",
+                        "LOAD DUMBBELL",
                         // textScaleFactor:
                         //     (mediaQuery.size.width <= 640) ? 0.75 : 1.0,
                         style: TextStyle(
@@ -1649,21 +1667,21 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                               : Colors.white,
                         ),
                       ),
-                      Image.asset(
-                        "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
-                        width: 60,
-                        height: 60,
-                      ),
-                      Text(
-                        "CALCULATOR",
-                        // textScaleFactor:
-                        //     (mediaQuery.size.width <= 640) ? 0.75 : 1.0,
-                        style: TextStyle(
-                          color: (snapshotBrightness.data == Brightness.light)
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
+                      // Image.asset(
+                      //   "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
+                      //   width: 60,
+                      //   height: 60,
+                      // ),
+                      // Text(
+                      //   " DUMBBELL",
+                      //   // textScaleFactor:
+                      //   //     (mediaQuery.size.width <= 640) ? 0.75 : 1.0,
+                      //   style: TextStyle(
+                      //     color: (snapshotBrightness.data == Brightness.light)
+                      //         ? Colors.black
+                      //         : Colors.white,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1749,35 +1767,35 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                           ///
                           /// FIXED Positioned widget
                           ///
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            top: 0,
-                            bottom: mediaQuery.size.height -
-                                mediaQuery.padding.top -
-                                kToolbarHeight -
-                                64,
-                            child: Center(
-                              // heightFactor: mediaQuery.size.height / 2,
-                              // widthFactor: mediaQuery.size.width / 2,
-                              child: Text(
-                                gGetDumbbellSetString(
-                                  Provider.of<WeightRackBlocNotifier>(context,
-                                          listen: true)
-                                      .dumbbellSet,
-                                ),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  // fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.bold,
-                                  color: (snapshotBrightness.data ==
-                                          Brightness.light)
-                                      ? Colors.black
-                                      : Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Positioned(
+                          //   left: 0,
+                          //   right: 0,
+                          //   top: 0,
+                          //   bottom: mediaQuery.size.height -
+                          //       mediaQuery.padding.top -
+                          //       kToolbarHeight -
+                          //       64,
+                          //   child: Center(
+                          //     // heightFactor: mediaQuery.size.height / 2,
+                          //     // widthFactor: mediaQuery.size.width / 2,
+                          //     child: Text(
+                          //       gGetDumbbellSetString(
+                          //         Provider.of<WeightRackBlocNotifier>(context,
+                          //                 listen: true)
+                          //             .dumbbellSet,
+                          //       ),
+                          //       style: TextStyle(
+                          //         fontSize: 18,
+                          //         // fontStyle: FontStyle.italic,
+                          //         fontWeight: FontWeight.bold,
+                          //         color: (snapshotBrightness.data ==
+                          //                 Brightness.light)
+                          //             ? Colors.black
+                          //             : Colors.white,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           Positioned(
                             bottom: (mediaQuery.size.height -
                                     mediaQuery.padding.top -
@@ -1815,12 +1833,12 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                           //   ),
                           // ),
 
-                          ///
-                          /// FIXED Positioned widget
-                          ///
+                          // ///
+                          // /// FIXED Positioned widget
+                          // ///
                           // Positioned(
-                          //   bottom: 10,
-                          //   right: 10,
+                          //   bottom: 200,
+                          //   right: 20,
                           //   child: GestureDetector(
                           //       onTap: () async {
                           //         setState(() {
@@ -1851,13 +1869,13 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                           //                       Brightness.light)
                           //                   ? Colors.black
                           //                   : Colors.white,
-                          //               size: 36)
+                          //               size: 72)
                           //           : Icon(Icons.rotate_left_sharp,
                           //               color: (snapshotBrightness.data ==
                           //                       Brightness.light)
                           //                   ? Colors.black
                           //                   : Colors.white,
-                          //               size: 36)),
+                          //               size: 72)),
                           // ),
 
                           CustomScrollView(
@@ -2008,58 +2026,62 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                             ///
                                             /// Display Weight Text
                                             ///
-                                            // Row(
-                                            //   mainAxisAlignment:
-                                            //       MainAxisAlignment.center,
-                                            //   crossAxisAlignment:
-                                            //       CrossAxisAlignment.center,
-                                            //   children: [
-                                            //     RotationTransition(
-                                            //       turns: Tween(
-                                            //               begin: 0.0, end: 0.25)
-                                            //           // turns: Tween(begin: 0.0, end: 1.0)
-                                            //           .animate(
-                                            //               _rotateWeightTextAnimController),
-                                            //       child: Text(
-                                            //         Provider.of<WeightRackBlocNotifier>(
-                                            //                 context,
-                                            //                 listen: false)
-                                            //             .totalPlatesWeight
-                                            //             .floor()
-                                            //             .toString(),
-                                            //         style: TextStyle(
-                                            //             color: Theme.of(context)
-                                            //                 .textSelectionTheme
-                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                            //             fontSize: 14.0,
-                                            //             fontWeight:
-                                            //                 FontWeight.bold),
-                                            //       ),
-                                            //     ),
-                                            //     RotationTransition(
-                                            //       turns: Tween(
-                                            //               begin: 0.0, end: 0.25)
-                                            //           // turns: Tween(begin: 0.0, end: 1.0)
-                                            //           .animate(
-                                            //               _rotateWeightTextAnimController),
-                                            //       child: Text(
-                                            //         (metricSwitch
-                                            //                     .isSwitchedOn ==
-                                            //                 false)
-                                            //             ? "kg"
-                                            //             : "lb",
-                                            //         style: TextStyle(
-                                            //             color: Theme.of(context)
-                                            //                 .textSelectionTheme
-                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                            //             fontSize: 14.0,
-                                            //             fontWeight:
-                                            //                 FontWeight.bold),
-                                            //       ),
-
-                                            //     ),
-                                            //   ],
-                                            // ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                RotationTransition(
+                                                  turns: Tween(
+                                                          begin: 0.0, end: 0.25)
+                                                      // turns: Tween(begin: 0.0, end: 1.0)
+                                                      .animate(
+                                                          _rotateWeightTextAnimController),
+                                                  child: Text(
+                                                    Provider.of<WeightRackBlocNotifier>(
+                                                            context,
+                                                            listen: false)
+                                                        .totalPlatesWeight
+                                                        .floor()
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textSelectionTheme
+                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                                RotationTransition(
+                                                  turns: Tween(
+                                                          begin: 0.0, end: 0.25)
+                                                      // turns: Tween(begin: 0.0, end: 1.0)
+                                                      .animate(
+                                                          _rotateWeightTextAnimController),
+                                                  child: Text(
+                                                    ((metricSwitch.isSwitchedOn ==
+                                                                false) ||
+                                                            Provider.of<WeightRackBlocNotifier>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .dumbbellSet ==
+                                                                4)
+                                                        ? "kg"
+                                                        : "lb",
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textSelectionTheme
+                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -2161,9 +2183,14 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                   ),
 
                                                   Text(
-                                                    (metricSwitch
-                                                                .isSwitchedOn ==
-                                                            false)
+                                                    ((metricSwitch.isSwitchedOn ==
+                                                                false) ||
+                                                            Provider.of<WeightRackBlocNotifier>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .dumbbellSet ==
+                                                                4)
                                                         ? "kg"
                                                         : "lb",
                                                     style: TextStyle(
@@ -2179,10 +2206,10 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                   /// Add Padding when 22.5lb plates are used
                                                   ((Provider.of<
                                                                   WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              ).dumbbellSet >=
-                                                              2) &&
+                                                            context,
+                                                            listen: false,
+                                                          ))
+                                                              .usesTwentyTwoLbPlates &&
                                                           (Provider.of<
                                                                       WeightRackBlocNotifier>(
                                                                 context,
@@ -2198,13 +2225,11 @@ class LoadBarbellViewState extends State<LoadBarbellView>
 
                                                   /// Add Checkbox Widget when 22.5lb plates are used.
                                                   ((Provider.of<
-                                                                  WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              ).dumbbellSet >=
-                                                              2) &&
-                                                          (Provider.of<
-                                                                  WeightRackBlocNotifier>(
+                                                              WeightRackBlocNotifier>(
+                                                            context,
+                                                            listen: false,
+                                                          )).usesTwentyTwoLbPlates &&
+                                                          (Provider.of<WeightRackBlocNotifier>(
                                                                 context,
                                                                 listen: false,
                                                               ).show22lbPlatesCheckboxAndGraphics ==
@@ -2223,13 +2248,11 @@ class LoadBarbellViewState extends State<LoadBarbellView>
 
                                                   /// Display the 22.5lb rectangle widget
                                                   ((Provider.of<
-                                                                  WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              ).dumbbellSet >=
-                                                              2) &&
-                                                          (Provider.of<
-                                                                  WeightRackBlocNotifier>(
+                                                              WeightRackBlocNotifier>(
+                                                            context,
+                                                            listen: false,
+                                                          )).usesTwentyTwoLbPlates &&
+                                                          (Provider.of<WeightRackBlocNotifier>(
                                                                 context,
                                                                 listen: false,
                                                               ).show22lbPlatesCheckboxAndGraphics ==
@@ -2346,8 +2369,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                               onPressed: () {
                                                 // Check and update Bottom or Right side dumbbells
                                                 if (gIronMasterBottomViewWeightIndex <
-                                                    gIronMasterWeightMaxIndex -
-                                                        1) {
+                                                    gIronMasterWeightMaxIndex) {
                                                   gIronMasterBottomViewWeightIndex++;
 
                                                   Provider.of<
@@ -2364,6 +2386,53 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                       ),
                                     ),
 
+                                    ///
+                                    /// FIXED Positioned widget
+                                    ///
+                                    GestureDetector(
+                                        onTap: () async {
+                                          setState(() {
+                                            bRotateIronMasterView =
+                                                !bRotateIronMasterView;
+
+                                            if (bRotateIronMasterView == true) {
+                                              _rotateDumbbellAnimController
+                                                  .forward();
+                                              _rotateWeightTextAnimController
+                                                  .forward();
+                                            } else {
+                                              _rotateDumbbellAnimController
+                                                  .reverse();
+                                              _rotateWeightTextAnimController
+                                                  .reverse();
+                                            }
+                                          });
+
+                                          /// manage the state of each value
+
+                                          // RotateIronMasterView = !gRotateIronMasterView;
+
+                                          Provider.of<WeightRackBlocNotifier>(
+                                                      context,
+                                                      listen: false)
+                                                  .isRotatedViewMode =
+                                              bRotateIronMasterView;
+                                        },
+                                        child: (bRotateIronMasterView)
+                                            ? Icon(Icons.rotate_right_sharp,
+                                                color:
+                                                    (snapshotBrightness.data ==
+                                                            Brightness.light)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                size: 36)
+                                            : Icon(Icons.rotate_left_sharp,
+                                                color:
+                                                    (snapshotBrightness.data ==
+                                                            Brightness.light)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                size: 36)),
                                     ///////////////
                                     ///
                                     ///

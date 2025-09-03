@@ -13,35 +13,39 @@ import 'package:provider/provider.dart';
 ///   Function:
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////
-int gGetIronMasterDumbbellSetMaxIndex(BuildContext context) {
+int gGetDumbbellSetMaxIndex(BuildContext context) {
   switch (
       Provider.of<WeightRackBlocNotifier>(context, listen: false).dumbbellSet) {
     case 0:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent45lbWeightList(
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
-      return theList[0].length;
+      return theList[0].length - 1;
     case 1:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent75lbWeightList(
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
-      return theList[0].length;
+      return theList[0].length - 1;
     case 2:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent120lbWeightList(
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
-      return theList[0].length;
+      return theList[0].length - 1;
     case 3:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent165lbWeightList(
           context,
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
-      return theList[0].length;
+      return theList[0].length - 1;
+    case 4:
+      List<dynamic> theList =
+          JsonDecoder().convert(gGetCurrentMoJeerWeightList(2.0));
+      return theList[0].length - 1;
     default:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent75lbWeightList(
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
-      return theList[0].length;
+      return theList[0].length - 1;
   }
 }
 
@@ -52,14 +56,16 @@ int gGetIronMasterDumbbellSetMaxIndex(BuildContext context) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 int gGetDumbbellSetIndex(String name) {
   switch (name) {
-    case "45lb Set":
+    case "45lb IronMaster Set":
       return 0;
-    case "75lb Set":
+    case "75lb IronMaster Set":
       return 1;
-    case "120lb Set":
+    case "120lb IronMaster Set":
       return 2;
-    case "165lb Set":
+    case "165lb IronMaster Set":
       return 3;
+    case "MoJeer 40kg Set":
+      return 4;
     default:
       return 0;
   }
@@ -80,6 +86,8 @@ String gGetDumbbellSetString(int index) {
       return "120lb Dumbbell Set";
     case 3:
       return "165lb Dumbbell Set";
+    case 4:
+      return "MoJeer 40kg Set";
     default:
       return "45lb Dumbbell Set";
   }
@@ -288,6 +296,42 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ///
+///   Function:  gGetCurrentMoJeerWeightList
+///
+///   Special Information:  This function is used to get the current weight list
+///   for the MoJeer dumbbell set.  MoJeer dumbbells use a different weight
+///   configuration compared to the IronMaster dumbbells, and uses kilogram as metric.
+///   MoJeer dumbbells have the following weight kg increments:
+///   [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+///   Ideally 1kg plates are on both sides of handle:
+///   [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40]
+/////////////////////////////////////////////////////////////////////////////////////////////////
+String gGetCurrentMoJeerWeightList(double real2kgWeight) {
+  ///
+  /// Create a list of plates increasing in weight.
+  /// This is converted to jSon format
+  ///
+  ///.  The 4 is the weight of handle
+  ///.  The 6 is the weight after adding the first plate
+  ///.  The 8 is the weight after adding the second plate
+  List<dynamic> weightList = [4, 6, 8];
+  const int TOTAL_2KG_PLATES_PER_DUMBBELL = 8;
+  for (double i = 1; i <= TOTAL_2KG_PLATES_PER_DUMBBELL; ++i) {
+    double formatedWeight = 6.0 + (real2kgWeight * (2 * i));
+
+    weightList.add(formatedWeight.ceil()); //.toDouble());
+    weightList.add((formatedWeight + 2.0).ceil()); //.toDouble());
+  }
+
+  ///
+  /// Use jsonEncode() function to create the Picker Data List.
+  ///
+  ///
+  return "[" + jsonEncode(weightList) + "]";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///
 ///   Function: _getIronMasterWeightIndex
 ///
 ///   Returns the weight index for the IronMaster dumbbell set
@@ -321,6 +365,9 @@ int gGetIronMasterWeightIndex(BuildContext context, int weight) {
           weight,
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue);
+      break;
+    case 4:
+      return gMoJeer40KgWeightIndexFromPicker2(context, weight);
       break;
     default:
       return gIronMaster45LbWeightIndexFromPicker2(

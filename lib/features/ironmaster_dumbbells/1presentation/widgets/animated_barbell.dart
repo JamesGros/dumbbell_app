@@ -127,9 +127,9 @@ class AnimatedBarbellState extends State<AnimatedBarbell>
   List<Widget> platesUsedDetail = [];
 
   ///
-  /// _spawnPoundsPlates
+  /// spawnPoundsPlatesIronMaster
   ///
-  void spawnPoundsPlates(
+  void spawnPoundsPlatesIronMaster(
     BuildContext context,
     List<WeightPlatesItemClass> weightPlatesList,
   ) {
@@ -277,10 +277,10 @@ class AnimatedBarbellState extends State<AnimatedBarbell>
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   ///
-  /// _addPoundsPlate
+  /// addPoundsPlateIronMaster
   ///
   ////////////////////////////////////////////////////////////////////////////////////////////////
-  void addPoundsPlate(List<WeightPlatesItemClass> weightPlatesList) {
+  void addPoundsPlateIronMaster(List<WeightPlatesItemClass> weightPlatesList) {
     // for (var index = 0; index < _weightPlatesList.length; index++) {
     for (WeightPlatesItemClass plate in weightPlatesList) {
       if (plate.plateAdded == true) {
@@ -391,10 +391,245 @@ class AnimatedBarbellState extends State<AnimatedBarbell>
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   ///
-  /// _removePoundsPlate
+  /// removePoundsPlateIronMaster
   ///
   ////////////////////////////////////////////////////////////////////////////////////////////////
-  void removePoundsPlate(List<WeightPlatesItemClass> weightPlatesList) {
+  void removePoundsPlateIronMaster(
+      List<WeightPlatesItemClass> weightPlatesList) {
+    // for (var index = 0; index < _weightPlatesList.length; index++) {
+    for (WeightPlatesItemClass plate in weightPlatesList) {
+      if (plate.plateRemoved == true) {
+        plate.plateRemoved = false; // Reset flag.
+
+        ///
+        /// TODO:  Fix this sync bug, the usedCount should never equal zero
+        ///        if platedRemoved flag was set to true!
+        ///
+        ///        Redesign to use BLOC pattern instead of Provider/Notifier pattern.
+        ///
+        if (platesList.isNotEmpty) {
+          platesList.removeLast();
+          platesList.removeLast();
+        }
+      }
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ///
+  /// spawnKiloPlatesMoJeer
+  ///
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  void spawnKiloPlatesMoJeer(
+    BuildContext context,
+    List<WeightPlatesItemClass> weightPlatesList,
+  ) {
+    ///
+    /// The MediaQuery.of(context).size.height value is different depending on context?
+    /// i.e., Debug vs Release build the MediaQuery.of(context).size.height value changes!!!
+    ///
+    gDeviceHeight = MediaQuery.of(context).size.height;
+
+    ///
+    ///
+    ///
+    for (var index = 0; index < weightPlatesList.length; index++) {
+      switch (weightPlatesList[index].name) {
+        case "2kg":
+          if (weightPlatesList[index].usedCount > 0) {
+            for (var plateCount = 0;
+                plateCount < weightPlatesList[index].usedCount;
+                plateCount++) {
+              platesList.add(
+                AnimatedPlate(
+                  name: "left2kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.blueGrey,
+                  widthPlate: MediaQuery.of(context).size.width * .04, //
+                  // widthPlate: 17,
+                  // heightPlate: 50,
+                  heightPlate: MediaQuery.of(context).size.height * .10,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: -45,
+                ),
+              );
+              platesList.add(
+                AnimatedPlate(
+                  name: "right2kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.blueGrey,
+                  widthPlate: MediaQuery.of(context).size.width * .04, //17,
+                  heightPlate: MediaQuery.of(context).size.height * .10,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: 500,
+                ),
+              );
+            }
+          }
+          break;
+        case "1kg": // this is 2.5 - 2 equals floor of 2.5
+          if (weightPlatesList[index].usedCount > 0) {
+            for (var plateCount = 0;
+                plateCount < weightPlatesList[index].usedCount;
+                plateCount++) {
+              platesList.add(
+                AnimatedPlate(
+                  name: "left1kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.yellow,
+                  widthPlate: MediaQuery.of(context).size.width * .03, //10,
+                  heightPlate: MediaQuery.of(context).size.height * .10,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: -45,
+                ),
+              );
+              platesList.add(
+                AnimatedPlate(
+                  name: "right1kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.yellow,
+                  widthPlate: MediaQuery.of(context).size.width * .03, //10,
+                  heightPlate: MediaQuery.of(context).size.height * .10,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: 500,
+                ),
+              );
+            }
+          }
+          break;
+        case "LockScrew1kg": // this is 2.5 - 2 equals floor of 2.5
+          if (weightPlatesList[index].usedCount > 0) {
+            for (var plateCount = 0;
+                plateCount < weightPlatesList[index].usedCount;
+                plateCount++) {
+              platesList.add(
+                AnimatedPlate(
+                  name: "leftLockScrew1kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.yellow,
+                  widthPlate: MediaQuery.of(context).size.width * .03, //10,
+                  heightPlate: MediaQuery.of(context).size.height * .07, //.06,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: -45,
+                ),
+              );
+              platesList.add(
+                AnimatedPlate(
+                  name: "rightLockScrew1kg",
+                  colorPlate: weightPlatesList[index].color, //Colors.yellow,
+                  widthPlate: MediaQuery.of(context).size.width * .03, //10,
+                  heightPlate: MediaQuery.of(context).size.height * .07, //.06,
+                  realWeight: weightPlatesList[index].weight,
+                  // off-screen position
+                  targetXPosition: 500,
+                ),
+              );
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ///
+  /// addKiloPlateMoJeer
+  ///
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  void addKiloPlateMoJeer(List<WeightPlatesItemClass> weightPlatesList) {
+    // for (var index = 0; index < _weightPlatesList.length; index++) {
+    for (WeightPlatesItemClass plate in weightPlatesList) {
+      if (plate.plateAdded == true) {
+        plate.plateAdded = false; // Reset flag.
+        switch (plate.name) {
+          case "2kg":
+            platesList.add(
+              AnimatedPlate(
+                name: "left2kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //17,
+                heightPlate: 50,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: -45,
+              ),
+            );
+            platesList.add(
+              AnimatedPlate(
+                name: "right2kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //17,
+                heightPlate: 50,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: 500,
+              ),
+            );
+            break;
+          case "1kg":
+            platesList.add(
+              AnimatedPlate(
+                name: "left1kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //10,
+                heightPlate: 100,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: -45,
+              ),
+            );
+            platesList.add(
+              AnimatedPlate(
+                name: "right1kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //10,
+                heightPlate: 100,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: 500,
+              ),
+            );
+            break;
+          case "LockScrew1kg":
+            platesList.add(
+              AnimatedPlate(
+                name: "leftLockScrew1kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //10,
+                heightPlate: 50,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: -45,
+              ),
+            );
+            platesList.add(
+              AnimatedPlate(
+                name: "rightLockScrew1kg",
+                colorPlate: plate.color, //Colors.cyan,
+                widthPlate: gDeviceWidth * .03, //10,
+                heightPlate: 50,
+                realWeight: plate.weight,
+                // off-screen position
+                targetXPosition: 500,
+              ),
+            );
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ///
+  /// removeKilosPlateMoJeer
+  ///
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  void removeKilosPlateMoJeer(List<WeightPlatesItemClass> weightPlatesList) {
     // for (var index = 0; index < _weightPlatesList.length; index++) {
     for (WeightPlatesItemClass plate in weightPlatesList) {
       if (plate.plateRemoved == true) {
@@ -715,7 +950,11 @@ class AnimatedPlateState extends State<AnimatedPlate>
                 ///
                 /// Apply users 5lb weight correction
                 ///
-                (widget.realWeight == 5.0)
+                (Provider.of<WeightRackBlocNotifier>(
+                          context,
+                          listen: false,
+                        ).isIronMasterDumbbellSet &&
+                        widget.realWeight == 5.0)
                     ? Provider.of<WeightRackBlocNotifier>(
                         context,
                         listen: true,

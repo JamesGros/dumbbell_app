@@ -6,7 +6,8 @@ enum BarbellType {
   BARBELL_35LB,
   BARBELL_25LB,
   BARBELL_15LB,
-  BARBELL_IRONMASTER_5lb // IRON MASTER - Dumbbell handle (5lb) + locking screws (2.5lb x 2) = 10lb
+  BARBELL_IRONMASTER_5lb, // IRON MASTER - Dumbbell handle (5lb) + locking screws (2.5lb x 2) = 10lb
+  BARBELL_MOJEER_4kg // MOJEER - Dumbbell handle (4kg) + locking screws (2kg x 2) = 8kg
 }
 
 //
@@ -57,6 +58,8 @@ double getCurrentBarbellTypeDouble(BarbellType barbellType) {
       return 15.0;
     case BarbellType.BARBELL_IRONMASTER_5lb:
       return 5.0;
+    case BarbellType.BARBELL_MOJEER_4kg:
+      return 4.0;
   }
 }
 
@@ -74,6 +77,8 @@ String getCurrentBarbellTypeString(BarbellType barbellType) {
       return "15lb Barbell";
     case BarbellType.BARBELL_IRONMASTER_5lb:
       return "5lb Handle ";
+    case BarbellType.BARBELL_MOJEER_4kg:
+      return "4kg Handle ";
   }
 }
 
@@ -104,6 +109,8 @@ int getCurrentBarbellTypeInt(BarbellType barbellType) {
       return 4;
     case BarbellType.BARBELL_IRONMASTER_5lb:
       return 5;
+    case BarbellType.BARBELL_MOJEER_4kg:
+      return 6;
     default:
       return 0;
   }
@@ -128,6 +135,9 @@ BarbellType getCurrentBarbellTypeEnum(int barbellType) {
 
     case 5:
       return BarbellType.BARBELL_IRONMASTER_5lb;
+
+    case 6:
+      return BarbellType.BARBELL_MOJEER_4kg;
 
     default:
       return BarbellType.BARBELL_TITAN_SSB;

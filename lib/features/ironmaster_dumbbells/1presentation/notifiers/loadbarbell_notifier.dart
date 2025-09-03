@@ -119,7 +119,8 @@ class LoadBarbellBlocNotifier extends ChangeNotifier {
   // BarbellType get barbellInUse => _barbell.barbellInUse;
 
   // IRON MASTER - Dumbbell handle + locking screws = 10lb
-  BarbellType get barbellInUse => BarbellType.BARBELL_IRONMASTER_5lb;
+  BarbellType get barbellInUse => _barbell.barbellInUse;
+  // BarbellType get barbellInUse => BarbellType.BARBELL_IRONMASTER_5lb;
 
   // setter
   set barbellInUse(BarbellType data) {

@@ -409,8 +409,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       if (Provider.of<WeightRackBlocNotifier>(
             event._context,
             listen: false,
-          ).dumbbellSet >=
-          2) {
+          ).isIronMasterDumbbellSet &&
+          Provider.of<WeightRackBlocNotifier>(
+                event._context,
+                listen: false,
+              ).dumbbellSet >=
+              2) {
         theRack[1].ownIt =
             true; // index 1 is 22.5lb plate by design used by default
         if (event._topLeftDumbbell == false &&
@@ -430,30 +434,36 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         }
       }
 
-      ///
-      /// IRON MASTER - Apply User 5lb plate correction weight.
-      ///
       if (Provider.of<WeightRackBlocNotifier>(
             event._context,
             listen: false,
-          ).dumbbellSet >=
-          2) {
+          ).isIronMasterDumbbellSet ==
+          true) {
+        ///`
+        /// IRON MASTER - Apply User 5lb plate correction weight.
         ///
-        /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-        /// for 120lb Iron Master Quick-Lock Set.
-        ///
-        theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
-          event._context,
-          listen: false,
-        ).weightCorrectionValue;
-      } else {
-        ///
-        /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-        ///
-        theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-          event._context,
-          listen: false,
-        ).weightCorrectionValue;
+        if (Provider.of<WeightRackBlocNotifier>(
+              event._context,
+              listen: false,
+            ).dumbbellSet >=
+            2) {
+          ///
+          /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
+          /// for 120lb Iron Master Quick-Lock Set.
+          ///
+          theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
+            event._context,
+            listen: false,
+          ).weightCorrectionValue;
+        } else {
+          ///
+          /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
+          ///
+          theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
+            event._context,
+            listen: false,
+          ).weightCorrectionValue;
+        }
       }
 
       ///
@@ -469,94 +479,113 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       Provider.of<BarbellDisplayListBlocNotifier>(event._context, listen: false)
           .changedPlates = true;
 
-      ///
-      /// IF the calculated weight is less than threshold (e.g. +/- 5 lbs),
-      /// then make an adjustment.   The threshold +/- 5lb should be specified by
-      /// the user of the App.
-      /// If the desiredWeight is zero, then bypass the threshold check, because
-      /// then only the barbell weight is the calculated weight!
-      ///
-      const double userThreshold = 5.0;
-      const double threshold = userThreshold / 2;
-      if (desiredWeight > 0 && calculatedWeight != desiredWeight) {
+      if (Provider.of<WeightRackBlocNotifier>(
+        event._context,
+        listen: false,
+      ).isIronMasterDumbbellSet) {
         ///
-        /// Determine if NOT within threshold
+        /// IF the calculated weight is less than threshold (e.g. +/- 5 lbs),
+        /// then make an adjustment.   The threshold +/- 5lb should be specified by
+        /// the user of the App.
+        /// If the desiredWeight is zero, then bypass the threshold check, because
+        /// then only the barbell weight is the calculated weight!
         ///
-        if ((calculatedWeight - desiredWeight).abs() > threshold) {
+        const double userThreshold = 5.0;
+        const double threshold = userThreshold / 2;
+        if (desiredWeight > 0 && calculatedWeight != desiredWeight) {
           ///
-          /// Calculate a new target weight to get closer to desired weight
-          /// within the threshold.
+          /// Determine if NOT within threshold
           ///
-          double newTargetWeight = calculatedWeight + userThreshold;
+          if ((calculatedWeight - desiredWeight).abs() > threshold) {
+            ///
+            /// Calculate a new target weight to get closer to desired weight
+            /// within the threshold.
+            ///
+            double newTargetWeight = calculatedWeight + userThreshold;
 
-          ///
-          /// Clear the used counts before the rack structure is used
-          /// to calculate the number of plates loaded on the barbell
-          /// given the desired weight.
-          ///
-          for (var index = 0; index < theRack.length; index++) {
-            theRack[index].usedCount = 0;
-          }
-
-          ///
-          /// IRON MASTER - Use the Heavy 22.5lb Plates if checkbox is selected.
-          ///
-          if (Provider.of<WeightRackBlocNotifier>(
-                event._context,
-                listen: false,
-              ).dumbbellSet >=
-              2) {
-            theRack[1].ownIt =
-                true; // index 1 is 22.5lb plate by design used by default
-            if (event._topLeftDumbbell == false &&
-                Provider.of<WeightRackBlocNotifier>(
-                      event._context,
-                      listen: false,
-                    ).useHeavy22lbPlatesBottomRight ==
-                    false) {
-              theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
-            } else if (event._topLeftDumbbell == true &&
-                Provider.of<WeightRackBlocNotifier>(
-                      event._context,
-                      listen: false,
-                    ).useHeavy22lbPlatesTopLeft ==
-                    false) {
-              theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
+            ///
+            /// Clear the used counts before the rack structure is used
+            /// to calculate the number of plates loaded on the barbell
+            /// given the desired weight.
+            ///
+            for (var index = 0; index < theRack.length; index++) {
+              theRack[index].usedCount = 0;
             }
-          }
 
-          ///
-          /// IRON MASTER - Apply User 5lb plate correction weight.
-          ///
-          if (Provider.of<WeightRackBlocNotifier>(
-                event._context,
-                listen: false,
-              ).dumbbellSet >=
-              2) {
             ///
-            /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-            /// for 120lb Iron Master Quick-Lock Set.
+            /// IRON MASTER - Use the Heavy 22.5lb Plates if checkbox is selected.
             ///
-            theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
+            if (Provider.of<WeightRackBlocNotifier>(
+                  event._context,
+                  listen: false,
+                ).isIronMasterDumbbellSet &&
+                Provider.of<WeightRackBlocNotifier>(
+                      event._context,
+                      listen: false,
+                    ).dumbbellSet >=
+                    2) {
+              theRack[1].ownIt =
+                  true; // index 1 is 22.5lb plate by design used by default
+              if (event._topLeftDumbbell == false &&
+                  Provider.of<WeightRackBlocNotifier>(
+                        event._context,
+                        listen: false,
+                      ).useHeavy22lbPlatesBottomRight ==
+                      false) {
+                theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
+              } else if (event._topLeftDumbbell == true &&
+                  Provider.of<WeightRackBlocNotifier>(
+                        event._context,
+                        listen: false,
+                      ).useHeavy22lbPlatesTopLeft ==
+                      false) {
+                theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
+              }
+            }
+            if (Provider.of<WeightRackBlocNotifier>(
               event._context,
               listen: false,
-            ).weightCorrectionValue;
-          } else {
-            ///
-            /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-            ///
-            theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-              event._context,
-              listen: false,
-            ).weightCorrectionValue;
-          }
+            ).isIronMasterDumbbellSet) {
+              ///
+              /// IRON MASTER - Apply User 5lb plate correction weight.
+              ///
+              if (Provider.of<WeightRackBlocNotifier>(
+                    event._context,
+                    listen: false,
+                  ).dumbbellSet >=
+                  2) {
+                ///
+                /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
+                /// for 120lb Iron Master Quick-Lock Set.
+                ///
+                theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
+                  event._context,
+                  listen: false,
+                ).weightCorrectionValue;
+              } else {
+                ///
+                /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
+                ///
+                theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
+                  event._context,
+                  listen: false,
+                ).weightCorrectionValue;
+              }
+            }
 
-          calculatedWeight = calculateWeightSet(
-            theRack,
-            newTargetWeight,
-            barbellWeight,
-          );
+            calculatedWeight = calculateWeightSet(
+              theRack,
+              newTargetWeight,
+              barbellWeight,
+            );
+          }
         }
+      } else {
+        calculatedWeight = calculateWeightSet(
+          theRack,
+          desiredWeight,
+          barbellWeight,
+        );
       }
 
       ///
@@ -639,8 +668,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
     if (Provider.of<WeightRackBlocNotifier>(
           event._context,
           listen: false,
-        ).dumbbellSet >=
-        2) {
+        ).isIronMasterDumbbellSet &&
+        Provider.of<WeightRackBlocNotifier>(
+              event._context,
+              listen: false,
+            ).dumbbellSet >=
+            2) {
       theRack[1].ownIt =
           true; // index 1 is 22.5lb plate by design used by default
       if (event._topLeftDumbbell == false &&
@@ -660,30 +693,36 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       }
     }
 
-    ///
-    /// IRON MASTER - Apply User 5lb plate correction weight.
-    ///
     if (Provider.of<WeightRackBlocNotifier>(
           event._context,
           listen: false,
-        ).dumbbellSet >=
-        2) {
+        ).isIronMasterDumbbellSet ==
+        true) {
       ///
-      /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-      /// for 120lb Iron Master Quick-Lock Set.
+      /// IRON MASTER - Apply User 5lb plate correction weight.
       ///
-      theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
-        event._context,
-        listen: false,
-      ).weightCorrectionValue;
-    } else {
-      ///
-      /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-      ///
-      theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-        event._context,
-        listen: false,
-      ).weightCorrectionValue;
+      if (Provider.of<WeightRackBlocNotifier>(
+            event._context,
+            listen: false,
+          ).dumbbellSet >=
+          2) {
+        ///
+        /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
+        /// for 120lb Iron Master Quick-Lock Set.
+        ///
+        theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
+          event._context,
+          listen: false,
+        ).weightCorrectionValue;
+      } else {
+        ///
+        /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
+        ///
+        theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
+          event._context,
+          listen: false,
+        ).weightCorrectionValue;
+      }
     }
 
     double calculatedWeight = calculateWeightSet(
@@ -731,8 +770,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         if (Provider.of<WeightRackBlocNotifier>(
               event._context,
               listen: false,
-            ).dumbbellSet >=
-            2) {
+            ).isIronMasterDumbbellSet &&
+            Provider.of<WeightRackBlocNotifier>(
+                  event._context,
+                  listen: false,
+                ).dumbbellSet >=
+                2) {
           theRack[1].ownIt =
               true; // index 1 is 22.5lb plate by design used by default
           if (event._topLeftDumbbell == false &&
@@ -752,30 +795,36 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
           }
         }
 
-        ///
-        /// IRON MASTER - Apply User 5lb plate correction weight.
-        ///
         if (Provider.of<WeightRackBlocNotifier>(
               event._context,
               listen: false,
-            ).dumbbellSet >=
-            2) {
+            ).isIronMasterDumbbellSet ==
+            true) {
           ///
-          /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-          /// for 120lb Iron Master Quick-Lock Set.
+          /// IRON MASTER - Apply User 5lb plate correction weight.
           ///
-          theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
-            event._context,
-            listen: false,
-          ).weightCorrectionValue;
-        } else {
-          ///
-          /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-          ///
-          theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-            event._context,
-            listen: false,
-          ).weightCorrectionValue;
+          if (Provider.of<WeightRackBlocNotifier>(
+                event._context,
+                listen: false,
+              ).dumbbellSet >=
+              2) {
+            ///
+            /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
+            /// for 120lb Iron Master Quick-Lock Set.
+            ///
+            theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
+              event._context,
+              listen: false,
+            ).weightCorrectionValue;
+          } else {
+            ///
+            /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
+            ///
+            theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
+              event._context,
+              listen: false,
+            ).weightCorrectionValue;
+          }
         }
 
         calculatedWeight = calculateWeightSet(
@@ -832,17 +881,19 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       _onAlertWeightRackInsufficient(event._context);
     }
 
-    // Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
-    //     .weightCorrectionValue = gSharedPrefs.weighed5LbPlate;
-    // // Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
-    // //     .isDumbbellSingleView = gSharedPrefs.dumbbellSingleViewMode;
-    Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
-        .weightCorrectionValue = gSharedPrefs.weighed5LbPlate;
+    if (Provider.of<WeightRackBlocNotifier>(
+          event._context,
+          listen: false,
+        ).isIronMasterDumbbellSet ==
+        true) {
+      Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
+          .weightCorrectionValue = gSharedPrefs.weighed5LbPlate;
+    }
     Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
         .dumbbellSet = gSharedPrefs.dumbbellSetChoice;
 
-    Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
-        .weightCorrectionValue = gSharedPrefs.weighed5LbPlate;
+    // Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
+    //     .weightCorrectionValue = gSharedPrefs.weighed5LbPlate;
 
     double desiredWeight = gSharedPrefs.desiredWeight;
     Provider.of<WeightRackBlocNotifier>(event._context, listen: false)
@@ -939,8 +990,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       if (Provider.of<WeightRackBlocNotifier>(
             event._context,
             listen: false,
-          ).dumbbellSet >=
-          2) {
+          ).isIronMasterDumbbellSet &&
+          Provider.of<WeightRackBlocNotifier>(
+                event._context,
+                listen: false,
+              ).dumbbellSet >=
+              2) {
         theRack[1].ownIt =
             true; // index 1 is 22.5lb plate by design used by default
 
@@ -961,32 +1016,36 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         }
       }
 
-      ///
-      /// IRON MASTER - Apply User 5lb plate correction weight.
-      ///
       if (Provider.of<WeightRackBlocNotifier>(
+        event._context,
+        listen: false,
+      ).isIronMasterDumbbellSet) {
+        ///
+        /// IRON MASTER - Apply User 5lb plate correction weight.
+        ///
+        if (Provider.of<WeightRackBlocNotifier>(
+              event._context,
+              listen: false,
+            ).dumbbellSet >=
+            2) {
+          ///
+          /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
+          /// for 120lb Iron Master Quick-Lock Set.
+          ///
+          theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
             event._context,
             listen: false,
-          ).dumbbellSet >=
-          2) {
-        ///
-        /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-        /// for 120lb Iron Master Quick-Lock Set.
-        ///
-        theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
-          event._context,
-          listen: false,
-        ).weightCorrectionValue;
-      } else {
-        ///
-        /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-        ///
-        theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-          event._context,
-          listen: false,
-        ).weightCorrectionValue;
+          ).weightCorrectionValue;
+        } else {
+          ///
+          /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
+          ///
+          theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
+            event._context,
+            listen: false,
+          ).weightCorrectionValue;
+        }
       }
-
       Provider.of<BarbellDisplayListBlocNotifier>(
         event._context,
         listen: false,
@@ -1003,101 +1062,6 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         event._context,
         listen: false,
       ).ironMasterBottomViewWeightIndex = gIronMasterBottomViewWeightIndex;
-
-      // double calculatedWeight = calculateWeightSet(
-      //   theRack,
-      //   desiredWeight,
-      //   barbellWeight,
-      // );
-      ///
-      /// IF the calculated weight is less than threshold (e.g. +/- 5 lbs),
-      /// then make an adjustment.   The threshold +/- 5lb should be specified by
-      /// the user of the App.
-      /// If the desiredWeight is zero, then bypass the threshold check, because
-      /// then only the barbell weight is the calculated weight!
-      ///
-      // const double userThreshold = 5.0;
-      // const double threshold = userThreshold / 2;
-      // if (desiredWeight > 0 && calculatedWeight != desiredWeight) {
-      //   ///
-      //   /// Determine if NOT within threshold
-      //   ///
-      //   if ((calculatedWeight - desiredWeight).abs() > threshold) {
-      //     ///
-      //     /// Calculate a new target weight to get closer to desired weight
-      //     /// within the threshold.
-      //     ///
-      //     double newTargetWeight = calculatedWeight + userThreshold;
-
-      //     ///
-      //     /// Clear the used counts before the rack structure is used
-      //     /// to calculate the number of plates loaded on the barbell
-      //     /// given the desired weight.
-      //     ///
-      //     for (var index = 0; index < theRack.length; index++) {
-      //       theRack[index].usedCount = 0;
-      //     }
-
-      //     ///
-      //     /// IRON MASTER - Use the Heavy 22.5lb Plates if checkbox is selected.
-      //     ///
-      //     if (Provider.of<WeightRackBlocNotifier>(
-      //           event._context,
-      //           listen: false,
-      //         ).dumbbellSet >=
-      //         2) {
-      //       theRack[1].ownIt =
-      //           true; // index 1 is 22.5lb plate by design used by default
-      //       if (event._topLeftDumbbell == false &&
-      //           Provider.of<WeightRackBlocNotifier>(
-      //                 event._context,
-      //                 listen: false,
-      //               ).useHeavy22lbPlatesBottomRight ==
-      //               false) {
-      //         theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
-      //       } else if (event._topLeftDumbbell == true &&
-      //           Provider.of<WeightRackBlocNotifier>(
-      //                 event._context,
-      //                 listen: false,
-      //               ).useHeavy22lbPlatesTopLeft ==
-      //               false) {
-      //         theRack[1].ownIt = false; // index 1 is 22.5lb plate by design
-      //       }
-      //     }
-
-      //     ///
-      //     /// IRON MASTER - Apply User 5lb plate correction weight.
-      //     ///
-      //     if (Provider.of<WeightRackBlocNotifier>(
-      //           event._context,
-      //           listen: false,
-      //         ).dumbbellSet >=
-      //         2) {
-      //       ///
-      //       /// Index 2 is mapped to 5lb plate by design in weightrack_notifier.dart
-      //       /// for 120lb Iron Master Quick-Lock Set.
-      //       ///
-      //       theRack[2].weight = Provider.of<WeightRackBlocNotifier>(
-      //         event._context,
-      //         listen: false,
-      //       ).weightCorrectionValue;
-      //     } else {
-      //       ///
-      //       /// Index 1 is mapped to 5lb plate by design in weightrack_notifier.dart
-      //       ///
-      //       theRack[1].weight = Provider.of<WeightRackBlocNotifier>(
-      //         event._context,
-      //         listen: false,
-      //       ).weightCorrectionValue;
-      //     }
-
-      //     calculatedWeight = calculateWeightSet(
-      //       theRack,
-      //       newTargetWeight,
-      //       barbellWeight,
-      //     );
-      //   }
-      // }
 
       ///
       /// Update the Provider to notify that usedCount has changed.
@@ -1285,12 +1249,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       ///               then sort rack list so that the locking screws
       ///               are spawned last.
       ///
-      List<WeightPlatesItemClass> theIronMasterRack = [];
+      List<WeightPlatesItemClass> theRackSorted = [];
       for (var index = 1; index < theRack.length; index++) {
         // Check for the locking screw, should be the 1st item.
         // if (theRack.name == "LockScrew2.5lb") {
         // Move the locking screw to the end of the list.
-        theIronMasterRack.add(theRack.elementAt(index));
+        theRackSorted.add(theRack.elementAt(index));
       }
 
       ///
@@ -1301,11 +1265,22 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       ///
       /// Add the locking screws
       ///
-      theIronMasterRack.add(theRack.first);
+      theRackSorted.add(theRack.first);
       // Instantiate the animated plates and save them into the _platesList list.
       // The list is iterated within the build() method to display the
       // animated plates.
-      animatedBarbell.spawnPoundsPlates(context, theIronMasterRack);
+
+      ///
+      /// TODO - Create a spawnKiloPlates for MoJeer,
+      ///        or refactor spawnPoundsPlates() to spawnPlates(dumbbellSetType) since they
+      ///        share similar logic.
+      ///
+      if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .isIronMasterDumbbellSet) {
+        animatedBarbell.spawnPoundsPlatesIronMaster(context, theRackSorted);
+      } else {
+        animatedBarbell.spawnKiloPlatesMoJeer(context, theRackSorted);
+      }
       // animatedBarbell.spawnPoundsPlates(theRack);
 
       // if (metricSwitch.isSwitchedOn == true) {
@@ -1326,7 +1301,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         ///
         /// Add the outer plates.
         ///
-        animatedBarbell.addPoundsPlate(theRack);
+        if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+            .isIronMasterDumbbellSet) {
+          animatedBarbell.addPoundsPlateIronMaster(theRack);
+        } else {
+          animatedBarbell.addKiloPlateMoJeer(theRack);
+        }
         _setSelectedWeightRackList(context, theRack);
 
         // if (metricSwitch.isSwitchedOn == true) {
@@ -1354,7 +1334,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         ///
         /// Remove the outer plates.
         ///
-        animatedBarbell.removePoundsPlate(theRack);
+        if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+            .isIronMasterDumbbellSet) {
+          animatedBarbell.removePoundsPlateIronMaster(theRack);
+        } else {
+          animatedBarbell.removeKilosPlateMoJeer(theRack);
+        }
         _setSelectedWeightRackList(context, theRack);
 
         // if (metricSwitch.isSwitchedOn == true) {
@@ -1916,8 +1901,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
     if (Provider.of<WeightRackBlocNotifier>(
           context,
           listen: false,
-        ).dumbbellSet >=
-        2) {
+        ).isIronMasterDumbbellSet &&
+        Provider.of<WeightRackBlocNotifier>(
+              context,
+              listen: false,
+            ).dumbbellSet >=
+            2) {
       // if (isTopLeftDumbbell == false) {
       showStrickthroughOn22lbPlate = Provider.of<WeightRackBlocNotifier>(
         context,
@@ -1929,6 +1918,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
         context,
         listen: false,
       ).showStrickthroughOn22lbPlate = showStrickthroughOn22lbPlate;
+
+      ///
+      /// Init to false
+      ///
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .useHeavy22lbPlatesBottomRight = false;
 
       ///
       /// If the target weight "requires" the 22.5lb plates,
@@ -1947,7 +1942,10 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       /// If queriedWeight is greater than 75lb, then the 22lb plates
       /// are needed to reach desired weight.
       ///
-      else if (queriedWeight > 75.0) {
+      else if (queriedWeight > 75.0 &&
+          // Mojeer is index 4
+          Provider.of<WeightRackBlocNotifier>(context, listen: false)
+              .isIronMasterDumbbellSet) {
         Provider.of<WeightRackBlocNotifier>(context, listen: false)
             .useHeavy22lbPlatesBottomRight = true;
       }
@@ -2354,6 +2352,11 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
           context,
           listen: false,
         ).ironMaster165lbPlatesList;
+      case 4:
+        weightPlatesList = Provider.of<WeightRackBlocNotifier>(
+          context,
+          listen: false,
+        ).moJeer40KgPlatesList;
         break;
       default:
         weightPlatesList = Provider.of<WeightRackBlocNotifier>(
