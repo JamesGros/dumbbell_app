@@ -5,6 +5,8 @@ import 'dart:io';
 
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/bloc/preference_bloc.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/commonSwitch_model.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/loadbarbell_model.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/loadbarbell_notifier.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/pages/settings_view.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/utils/ironmaster_dbell_set.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/show_picker_dialog_widgets.dart';
@@ -713,12 +715,25 @@ class LoadBarbellViewState extends State<LoadBarbellView>
           index = theList[0].length - 1;
         }
         return theList[0][index].toInt();
-      case 4:
+      case 4: // MoJeer 20Kg
         List<dynamic> theList = JsonDecoder().convert(
 
             ///
             /// MoJeer doesn't use correction value - always 2kg plates
-            gGetCurrentMoJeerWeightList(2.0));
+            ///
+            gGetCurrentMoJeer20kgWeightList(2.0));
+        // Validate index
+        if (index >= theList[0].length) {
+          index = theList[0].length - 1;
+        }
+        return theList[0][index].toInt();
+      case 5: // MoJeer 40Kg
+        List<dynamic> theList = JsonDecoder().convert(
+
+            ///
+            /// MoJeer doesn't use correction value - always 2kg plates
+            ///
+            gGetCurrentMoJeer40kgWeightList(2.0));
         // Validate index
         if (index >= theList[0].length) {
           index = theList[0].length - 1;
@@ -753,31 +768,27 @@ class LoadBarbellViewState extends State<LoadBarbellView>
             weight,
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
                 .weightCorrectionValue);
-        break;
       case 1:
         return gIronMaster75LbWeightIndexFromPicker2(
             weight,
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
                 .weightCorrectionValue);
-        break;
       case 2:
         return gIronMaster120LbWeightIndexFromPicker2(
             weight,
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
                 .weightCorrectionValue);
-        break;
       case 3:
         return gIronMaster165LbWeightIndexFromPicker2(
             context,
             weight,
             Provider.of<WeightRackBlocNotifier>(context, listen: false)
                 .weightCorrectionValue);
-        break;
-      case 4:
+      case 4: // MoJeer 20Kg
+        return gMoJeer20KgWeightIndexFromPicker2(context, weight);
+
+      case 5: // MoJeer 40Kg
         return gMoJeer40KgWeightIndexFromPicker2(context, weight);
-        // Provider.of<WeightRackBlocNotifier>(context, listen: false)
-        //     .weightCorrectionValue);
-        break;
       default:
         return gIronMaster45LbWeightIndexFromPicker2(
             weight,
@@ -809,9 +820,9 @@ class LoadBarbellViewState extends State<LoadBarbellView>
 
       // JG DEBUG
 
-      Provider.of<WeightRackBlocNotifier>(context, listen: false)
-          .desiredWeight = 0;
-      _queryEnteredWeightBottomRight = 0;
+      // Provider.of<WeightRackBlocNotifier>(context, listen: false)
+      //     .desiredWeight = 0;
+      // _queryEnteredWeightBottomRight = 0;
 
       // _ironMasterSingleViewWeightIndex = 0;
 
@@ -1657,16 +1668,25 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "LOAD DUMBBELL",
-                        // textScaleFactor:
-                        //     (mediaQuery.size.width <= 640) ? 0.75 : 1.0,
-                        style: TextStyle(
-                          color: (snapshotBrightness.data == Brightness.light)
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
+                      Provider.of<WeightRackBlocNotifier>(context, listen: true)
+                              .isIronMasterDumbbellSet
+                          ? Column(
+                              children: [
+                                Text("IRON MASTER"),
+                                Text("DUMBBELL"),
+                              ],
+                            )
+                          : Text(
+                              "MOJEER DUMBBELL",
+                              // textScaleFactor:
+                              //     (mediaQuery.size.width <= 640) ? 0.75 : 1.0,
+                              style: TextStyle(
+                                color: (snapshotBrightness.data ==
+                                        Brightness.light)
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ),
                       // Image.asset(
                       //   "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
                       //   width: 60,
@@ -2026,62 +2046,62 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                             ///
                                             /// Display Weight Text
                                             ///
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                RotationTransition(
-                                                  turns: Tween(
-                                                          begin: 0.0, end: 0.25)
-                                                      // turns: Tween(begin: 0.0, end: 1.0)
-                                                      .animate(
-                                                          _rotateWeightTextAnimController),
-                                                  child: Text(
-                                                    Provider.of<WeightRackBlocNotifier>(
-                                                            context,
-                                                            listen: false)
-                                                        .totalPlatesWeight
-                                                        .floor()
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        color: Theme.of(context)
-                                                            .textSelectionTheme
-                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                                        fontSize: 14.0,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                                RotationTransition(
-                                                  turns: Tween(
-                                                          begin: 0.0, end: 0.25)
-                                                      // turns: Tween(begin: 0.0, end: 1.0)
-                                                      .animate(
-                                                          _rotateWeightTextAnimController),
-                                                  child: Text(
-                                                    ((metricSwitch.isSwitchedOn ==
-                                                                false) ||
-                                                            Provider.of<WeightRackBlocNotifier>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .dumbbellSet ==
-                                                                4)
-                                                        ? "kg"
-                                                        : "lb",
-                                                    style: TextStyle(
-                                                        color: Theme.of(context)
-                                                            .textSelectionTheme
-                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                                        fontSize: 14.0,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            // Row(
+                                            //   mainAxisAlignment:
+                                            //       MainAxisAlignment.center,
+                                            //   crossAxisAlignment:
+                                            //       CrossAxisAlignment.center,
+                                            //   children: [
+                                            //     RotationTransition(
+                                            //       turns: Tween(
+                                            //               begin: 0.0, end: 0.25)
+                                            //           // turns: Tween(begin: 0.0, end: 1.0)
+                                            //           .animate(
+                                            //               _rotateWeightTextAnimController),
+                                            //       child: Text(
+                                            //         Provider.of<WeightRackBlocNotifier>(
+                                            //                 context,
+                                            //                 listen: false)
+                                            //             .totalPlatesWeight
+                                            //             .floor()
+                                            //             .toString(),
+                                            //         style: TextStyle(
+                                            //             color: Theme.of(context)
+                                            //                 .textSelectionTheme
+                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                            //             fontSize: 14.0,
+                                            //             fontWeight:
+                                            //                 FontWeight.bold),
+                                            //       ),
+                                            //     ),
+                                            //     RotationTransition(
+                                            //       turns: Tween(
+                                            //               begin: 0.0, end: 0.25)
+                                            //           // turns: Tween(begin: 0.0, end: 1.0)
+                                            //           .animate(
+                                            //               _rotateWeightTextAnimController),
+                                            //       child: Text(
+                                            //         ((metricSwitch.isSwitchedOn ==
+                                            //                     false) ||
+                                            //                 Provider.of<WeightRackBlocNotifier>(
+                                            //                             context,
+                                            //                             listen:
+                                            //                                 false)
+                                            //                         .dumbbellSet ==
+                                            //                     4)
+                                            //             ? "kg"
+                                            //             : "lb",
+                                            //         style: TextStyle(
+                                            //             color: Theme.of(context)
+                                            //                 .textSelectionTheme
+                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                            //             fontSize: 14.0,
+                                            //             fontWeight:
+                                            //                 FontWeight.bold),
+                                            //       ),
+                                            //     ),
+                                            //   ],
+                                            // ),
                                           ],
                                         ),
                                       ),
@@ -2166,12 +2186,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                    (Provider.of<WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false)
-                                                            .totalPlatesWeight)
-                                                        .floor()
-                                                        .toString(),
+                                                    "${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeight).floor()}",
                                                     style: TextStyle(
                                                       color: Theme.of(context)
                                                           .textSelectionTheme
@@ -2189,8 +2204,8 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                                         context,
                                                                         listen:
                                                                             false)
-                                                                    .dumbbellSet ==
-                                                                4)
+                                                                    .isMoJeerDumbbellSet ==
+                                                                true)
                                                         ? "kg"
                                                         : "lb",
                                                     style: TextStyle(
@@ -2198,6 +2213,32 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                           .textSelectionTheme
                                                           .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
                                                       fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    ((metricSwitch.isSwitchedOn ==
+                                                                false) ||
+                                                            Provider.of<WeightRackBlocNotifier>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .isMoJeerDumbbellSet ==
+                                                                true)
+                                                        ? " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightLbs).floor()}lbs)"
+                                                        : "",
+
+                                                    ///
+                                                    /// Dont show the kg equivalent when in lb mode for Iron Master dumbbells
+                                                    /// Because the Row() area overflows with flutter error.
+                                                    ///
+                                                    // : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .textSelectionTheme
+                                                          .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                      fontSize: 14.0,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),

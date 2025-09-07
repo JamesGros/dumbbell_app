@@ -137,7 +137,7 @@ class _MyAppState extends State<MyApp> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const BlogPage(), //LoginPage(),
+    //JG 11/6/2025 const BlogPage(), //LoginPage(),
     const LoadBarbellView(),
     // const LoadBarbellCalcView(),
     const SettingsPage(),
@@ -312,32 +312,51 @@ class BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
-      destinations: [
-        const NavigationDestination(
-          icon: Icon(Icons.sports_gymnastics),
-          label: 'Logs',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.fitness_center),
-          //     Image.asset(
-          //   "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
-          //   width: 48,
-          //   height: 48,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+            colors: (Theme.of(context).brightness == Brightness.light)
+                ? [Color(0xFFaaaaaa), Color(0xFFeeeeee)]
+                : [Color(0xFF485563), Color(0xFF29323C)],
+            // [Color(0xFF485563), Color(0xFF29323C)],
+            tileMode: TileMode.clamp,
+            begin: Alignment.topCenter,
+            stops: [0.0, 1.0],
+            end: Alignment.bottomCenter),
+      ),
+      child: NavigationBar(
+        backgroundColor: (Theme.of(context).brightness == Brightness.light)
+            ? Colors.white
+            : Colors.black54,
+        selectedIndex: currentIndex,
+        onDestinationSelected: onTap,
+        destinations: [
+          // const NavigationDestination(
+          //   icon: Icon(Icons.notes_outlined),
+          //   label: 'Logs',
           // ),
-          label: 'Load Dumbbell',
-        ),
-        // const NavigationDestination(
-        //   icon: Icon(Icons.fitness_center),
-        //   label: 'Barbell Calc',
-        // ),
-        const NavigationDestination(
-          icon: Icon(Icons.settings),
-          label: 'Settings',
-        ),
-      ],
+          NavigationDestination(
+            // icon: Icon(Icons.fitness_center),
+            icon: Image.asset(
+              "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
+              width: 48,
+              height: 48,
+              color: (Theme.of(context).brightness == Brightness.light)
+                  ? Colors.black
+                  : Colors.white,
+            ),
+            label: 'Dumbbell',
+          ),
+          // const NavigationDestination(
+          //   icon: Icon(Icons.fitness_center),
+          //   label: 'Barbell Calc',
+          // ),
+          const NavigationDestination(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }

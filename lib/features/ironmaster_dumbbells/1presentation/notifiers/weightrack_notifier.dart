@@ -336,6 +336,77 @@ class WeightRackBlocNotifier extends ChangeNotifier {
   }
 
   ///
+  /// MoJeer 20Kg Pounds
+  ///
+  List<WeightPlatesItemClass> _moJeer20KgPlatesList = [
+    ///
+    /// MoJeer -
+    ///   The order of this list matters, the weight calculation algorithm
+    ///   searches and adds beginning from lighter weights (2.5lb) to heavier
+    ///   weights (5lb) etc.
+    ///
+    WeightPlatesItemClass(
+      name: "LockScrew1kg",
+      ownIt: true,
+      weight: 1,
+      numOwned: 2,
+      usedCount: 0,
+      plateAdded: false,
+      plateRemoved: false,
+      padding: 20,
+      // Color RGB of metalic silver
+      // color: Color.fromRGBO(192, 192, 192, 1.0)),
+      color: Colors.blueGrey, menuHiddenOnSubmitted: false,
+    ),
+
+    WeightPlatesItemClass(
+      name: "2kg",
+      ownIt: true,
+      weight: 2,
+      numOwned: 6,
+      usedCount: 0,
+      plateAdded: false,
+      plateRemoved: false,
+      padding: 20,
+      color: Colors.black,
+      menuHiddenOnSubmitted: false,
+    ),
+    // Color RGB of metalic bronze
+    // color: Colors.blueGrey),
+    WeightPlatesItemClass(
+        name: "1kg",
+        ownIt: true,
+        weight: 1,
+        numOwned: 2, // 2 x 1.2kg Plate and 2 x 1.2kg Lock Screws
+        usedCount: 0,
+        plateAdded: false,
+        plateRemoved: false,
+        padding: 20,
+        // color: Color.fromRGBO(99, 33, 33, 1.0)),
+        // Color RGB of metalic bronze
+        // color: Color.fromRGBO(169, 113, 66, 1.0)),
+        // color: Color.fromRGBO(169, 113, 66, 1.0)),
+        // color: Colors.blueGrey),
+        color: Colors.blueAccent,
+        menuHiddenOnSubmitted: false),
+  ];
+
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // getter/setter for _moJeer20KgPlatesList
+  //
+  ///////////////////////////////////////////////////////////////////////////
+
+  // getter
+  List<WeightPlatesItemClass> get moJeer20KgPlatesList => _moJeer20KgPlatesList;
+
+  // setter
+  set moJeer20KgPlatesList(List<WeightPlatesItemClass> data) {
+    _moJeer20KgPlatesList = data;
+    notifyListeners();
+  }
+
+  ///
   /// MoJeer 40Kg Pounds
   ///
   List<WeightPlatesItemClass> _moJeer40KgPlatesList = [
@@ -440,7 +511,8 @@ class WeightRackBlocNotifier extends ChangeNotifier {
   // Index 1 maps to 75lb Set in grouped_checkbox.dart
   // Index 2 maps to 120lb Set in grouped_checkbox.dart
   // Index 3 maps to 165lb Set in grouped_checkbox.dart
-  // Index 4 maps to MoJeer 40Kg Set in grouped_checkbox.dart
+  // Index 4 maps to MoJeer 20Kg Set in grouped_checkbox.dart
+  // Index 5 maps to MoJeer 40Kg Set in grouped_checkbox.dart
 
   // getter
   int get dumbbellSet => _dumbbellSet;
@@ -475,6 +547,8 @@ class WeightRackBlocNotifier extends ChangeNotifier {
     } else if (_dumbbellSet == 3) {
       return true; // 165lb Set uses 22lb plates
     } else if (_dumbbellSet == 4) {
+      return false; // MoJeer 20Kg Set does not use 22lb plates
+    } else if (_dumbbellSet == 5) {
       return false; // MoJeer 40Kg Set does not use 22lb plates
     }
     return false; // Default to false if no match found
@@ -490,7 +564,26 @@ class WeightRackBlocNotifier extends ChangeNotifier {
     } else if (_dumbbellSet == 3) {
       return true; // 165lb Set is an IronMaster set
     } else if (_dumbbellSet == 4) {
+      return false; // MoJeer 20Kg Set is not an IronMaster set
+    } else if (_dumbbellSet == 5) {
       return false; // MoJeer 40Kg Set is not an IronMaster set
+    }
+    return false; // Default to false if no match found
+  }
+
+  bool get isMoJeerDumbbellSet {
+    if (_dumbbellSet == 0) {
+      return false; // 45lb Set is an IronMaster set
+    } else if (_dumbbellSet == 1) {
+      return false; // 75lb Set is an IronMaster set
+    } else if (_dumbbellSet == 2) {
+      return false; // 120lb Set is an IronMaster set
+    } else if (_dumbbellSet == 3) {
+      return false; // 165lb Set is an IronMaster set
+    } else if (_dumbbellSet == 4) {
+      return true; // 20Kg Set is MoJeer set
+    } else if (_dumbbellSet == 5) {
+      return true; // 40Kg Set is MoJeer set
     }
     return false; // Default to false if no match found
   }
@@ -547,6 +640,38 @@ class WeightRackBlocNotifier extends ChangeNotifier {
   // setter
   set totalPlatesWeight(double data) {
     _totalPlatesWeight = data;
+    notifyListeners();
+  }
+
+  //********************************************************** */
+
+  ///
+  /// Currently selected Total Weight Displayed in the view.
+  ///
+  double _totalPlatesWeightKg = 5.0;
+
+  // getter
+  double get totalPlatesWeightKg => _totalPlatesWeightKg;
+
+  // setter
+  set totalPlatesWeightKg(double data) {
+    _totalPlatesWeightKg = data;
+    notifyListeners();
+  }
+
+  //********************************************************** */
+
+  ///
+  /// Currently selected Total Weight Displayed in the view.
+  ///
+  double _totalPlatesWeightLbs = 5.0;
+
+  // getter
+  double get totalPlatesWeightLbs => _totalPlatesWeightLbs;
+
+  // setter
+  set totalPlatesWeightLbs(double data) {
+    _totalPlatesWeightLbs = data;
     notifyListeners();
   }
 

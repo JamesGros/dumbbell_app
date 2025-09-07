@@ -31,16 +31,16 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (context, snapshotBrightness) {
           return Scaffold(
             appBar: AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  ///
-                  /// Save the preferences.
-                  ///
-                  gSharedPrefs.savePreferences();
-                  Navigator.of(context).pop();
-                },
-              ),
+              // leading: IconButton(
+              //   icon: const Icon(Icons.arrow_back),
+              //   onPressed: () {
+              //     ///
+              //     /// Save the preferences.
+              //     ///
+              //     gSharedPrefs.savePreferences();
+              //     Navigator.of(context).pop();
+              //   },
+              // ),
               title: const Text('SETTINGS'),
               backgroundColor: Colors.deepPurpleAccent,
               flexibleSpace: Container(

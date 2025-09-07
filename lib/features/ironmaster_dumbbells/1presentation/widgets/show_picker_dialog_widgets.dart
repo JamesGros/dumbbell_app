@@ -1279,13 +1279,33 @@ int gIronMaster165LbWeightIndexFromPicker2(
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ///
+///   Function:  gMoJeer20KgWeightIndexFromPicker2
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////
+int gMoJeer20KgWeightIndexFromPicker2(BuildContext context, int weight) {
+  // BuildContext context, int weight, double user5lbPlateWeight) {
+  List<dynamic> theList =
+      new JsonDecoder().convert(gGetCurrentMoJeer20kgWeightList(2.0));
+
+  int index = 0;
+  for (index = 0; index < theList[0].length; ++index) {
+    if (theList[0][index].toInt() == weight) {
+      return index;
+    }
+  }
+
+  return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///
 ///   Function:  gMoJeer40KgWeightIndexFromPicker2
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////
 int gMoJeer40KgWeightIndexFromPicker2(BuildContext context, int weight) {
   // BuildContext context, int weight, double user5lbPlateWeight) {
   List<dynamic> theList =
-      new JsonDecoder().convert(gGetCurrentMoJeerWeightList(2.0));
+      new JsonDecoder().convert(gGetCurrentMoJeer40kgWeightList(2.0));
 
   int index = 0;
   for (index = 0; index < theList[0].length; ++index) {

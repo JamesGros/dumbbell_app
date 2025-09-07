@@ -4,26 +4,36 @@ final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
   // TODO: Add this line in if AuthBloc and BlogBloc is used.
-  _initAuth();
-  _initBlog();
+  // JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // _initAuth();
+  // JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // _initBlog();
 
   _initIronMaster();
 
+// JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
 // TODO: Add this line in if AuthBloc and BlogBloc is used.
-  final supabase = await Supabase.initialize(
-    url: AppSecrets.supabaseUrl,
-    anonKey: AppSecrets.supabaseAnonKey,
-  );
-// TODO: Add this line in if AuthBloc and BlogBloc is used.
-  Hive.defaultDirectory = (await getApplicationDocumentsDirectory()).path;
-// TODO: Add this line in if AuthBloc and BlogBloc is used.
-  serviceLocator.registerLazySingleton(() => supabase.client);
-// TODO: Add this line in if AuthBloc and BlogBloc is used.
-  serviceLocator.registerLazySingleton(
-    () => Hive.box(name: 'blogs'),
-  );
+  // final supabase = await Supabase.initialize(
+  //     url: AppSecrets.supabaseUrl,
+  //     anonKey: AppSecrets.supabaseAnonKey,
+  //     authOptions: const FlutterAuthClientOptions(detectSessionInUri: false));
 
-  serviceLocator.registerFactory(() => InternetConnection());
+  // JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // TODO: Add this line in if AuthBloc and BlogBloc is used.
+  // Hive.defaultDirectory = (await getApplicationDocumentsDirectory()).path;
+
+// JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // TODO: Add this line in if AuthBloc and BlogBloc is used.
+  // serviceLocator.registerLazySingleton(() => supabase.client);
+
+  // JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // TODO: Add this line in if AuthBloc and BlogBloc is used.
+  // serviceLocator.registerLazySingleton(
+  //   () => Hive.box(name: 'blogs'),
+  // );
+
+// JG Commented out for now as not using AuthBloc and BlogBloc. 9/6/2025
+  // serviceLocator.registerFactory(() => InternetConnection());
 
 // TODO: Add this line in if AuthBloc and BlogBloc is used.
   // core

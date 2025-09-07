@@ -60,6 +60,12 @@ class _DumbbellSetCheckboxListState extends State<DumbbellSetCheckboxList> {
       "id": 4,
       "value": (gSharedPrefs.dumbbellSetChoice ==
           4), //false, //true, // Temporary Default during development
+      "title": "MoJeer 20kg Set",
+    },
+    {
+      "id": 5,
+      "value": (gSharedPrefs.dumbbellSetChoice ==
+          5), //false, //true, // Temporary Default during development
       "title": "MoJeer 40kg Set",
     },
   ];
@@ -286,7 +292,7 @@ class _DumbbellSetCheckboxListState extends State<DumbbellSetCheckboxList> {
                               ///
                               /// Set barbell in use
                               ///
-                              if (index == 4) {
+                              if (index == 4 || index == 5) {
                                 Provider.of<LoadBarbellBlocNotifier>(
                                   context,
                                   listen: false,

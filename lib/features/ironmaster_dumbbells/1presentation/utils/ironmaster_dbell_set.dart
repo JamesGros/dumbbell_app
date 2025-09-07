@@ -37,9 +37,13 @@ int gGetDumbbellSetMaxIndex(BuildContext context) {
           Provider.of<WeightRackBlocNotifier>(context, listen: false)
               .weightCorrectionValue));
       return theList[0].length - 1;
-    case 4:
+    case 4: // MoJeer 20Kg
       List<dynamic> theList =
-          JsonDecoder().convert(gGetCurrentMoJeerWeightList(2.0));
+          JsonDecoder().convert(gGetCurrentMoJeer20kgWeightList(2.0));
+      return theList[0].length - 1;
+    case 5: // MoJeer 40Kg
+      List<dynamic> theList =
+          JsonDecoder().convert(gGetCurrentMoJeer40kgWeightList(2.0));
       return theList[0].length - 1;
     default:
       List<dynamic> theList = JsonDecoder().convert(gGetCurrent75lbWeightList(
@@ -87,6 +91,8 @@ String gGetDumbbellSetString(int index) {
     case 3:
       return "165lb Dumbbell Set";
     case 4:
+      return "MoJeer 20kg Set";
+    case 5:
       return "MoJeer 40kg Set";
     default:
       return "45lb Dumbbell Set";
@@ -215,7 +221,7 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
   /// Create a list of plates increasing in weight.
   /// This is converted to jSon format
   ///
-  List<dynamic> weightList = [5, 10, 15];
+  List<dynamic> weightList = [5.0, 10.0, 15.0];
   const int TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE = 6;
   //show22lbPlatesCheckboxAndGraphics = true;
   if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
@@ -255,6 +261,9 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
     /// 2. With 22.5lb plate pair + 5lb plates
     /// 3. With 2 x 22.5lb plate pair + 5lb plates
     ///
+
+    double arrayOf22DotFiveWeightIncrement[] = [80, 100];
+    // double arrayOf22DotFiveWeightIncrement[] = [55, 100];
 
     ///
     /// 165lb Set comes with four 22.5 plates per dunbbell..
@@ -296,7 +305,7 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-///   Function:  gGetCurrentMoJeerWeightList
+///   Function:  gGetCurrentMoJeer20kgWeightList
 ///
 ///   Special Information:  This function is used to get the current weight list
 ///   for the MoJeer dumbbell set.  MoJeer dumbbells use a different weight
@@ -306,7 +315,43 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
 ///   Ideally 1kg plates are on both sides of handle:
 ///   [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40]
 /////////////////////////////////////////////////////////////////////////////////////////////////
-String gGetCurrentMoJeerWeightList(double real2kgWeight) {
+String gGetCurrentMoJeer20kgWeightList(double real2kgWeight) {
+  ///
+  /// Create a list of plates increasing in weight.
+  /// This is converted to jSon format
+  ///
+  ///.  The 4 is the weight of handle
+  ///.  The 6 is the weight after adding the first plate
+  ///.  The 8 is the weight after adding the second plate
+  List<dynamic> weightList = [4, 6, 8];
+  const int TOTAL_2KG_PLATES_PER_DUMBBELL = 4;
+  for (double i = 1; i <= TOTAL_2KG_PLATES_PER_DUMBBELL; ++i) {
+    double formatedWeight = 6.0 + (real2kgWeight * (2 * i));
+
+    weightList.add(formatedWeight.ceil()); //.toDouble());
+    weightList.add((formatedWeight + 2.0).ceil()); //.toDouble());
+  }
+
+  ///
+  /// Use jsonEncode() function to create the Picker Data List.
+  ///
+  ///
+  return "[" + jsonEncode(weightList) + "]";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///   Function:  gGetCurrentMoJeer40kgWeightList
+///
+///   Special Information:  This function is used to get the current weight list
+///   for the MoJeer dumbbell set.  MoJeer dumbbells use a different weight
+///   configuration compared to the IronMaster dumbbells, and uses kilogram as metric.
+///   MoJeer dumbbells have the following weight kg increments:
+///   [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+///   Ideally 1kg plates are on both sides of handle:
+///   [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40]
+/////////////////////////////////////////////////////////////////////////////////////////////////
+String gGetCurrentMoJeer40kgWeightList(double real2kgWeight) {
   ///
   /// Create a list of plates increasing in weight.
   /// This is converted to jSon format

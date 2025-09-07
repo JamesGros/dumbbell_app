@@ -180,6 +180,7 @@ Widget commonIronMasterDumbbellSwitch(BuildContext context) {
         MultiSelectCard(value: '75lb Set', label: '75lb IronMaster Set'),
         MultiSelectCard(value: '120lb Set', label: '120lb IronMaster Set'),
         MultiSelectCard(value: '165lb Set', label: '165lb IronMaster Set'),
+        MultiSelectCard(value: 'MoJeer 20kg Set', label: 'MoJeer 20kg Set'),
         MultiSelectCard(value: 'MoJeer 40kg Set', label: 'MoJeer 40kg Set'),
       ],
       onChange: (allSelectedItems, selectedItem) {

@@ -1198,12 +1198,34 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
 
     double collarWidth = animatedBarbell.getBarbellProperty.widthBarbell * 0.01;
 
-    // Query the BarbellBlocNotifier provider for which barbell is selected.
-    BarbellType barbellInUse = Provider.of<LoadBarbellBlocNotifier>(
+    // // Query the BarbellBlocNotifier provider for which barbell is selected.
+    // BarbellType barbellInUse = Provider.of<LoadBarbellBlocNotifier>(
+    //   context,
+    //   listen: false,
+    // ).barbellInUse;
+
+    ///
+    /// Set barbell in use
+    ///
+    if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+            .isMoJeerDumbbellSet ==
+        true) {
+      Provider.of<LoadBarbellBlocNotifier>(
+        context,
+        listen: false,
+      ).barbellInUse = BarbellType.BARBELL_MOJEER_4kg;
+    } else {
+      Provider.of<LoadBarbellBlocNotifier>(
+        context,
+        listen: false,
+      ).barbellInUse = BarbellType.BARBELL_IRONMASTER_5lb;
+    }
+
+    double barbellWeight =
+        getCurrentBarbellTypeDouble(Provider.of<LoadBarbellBlocNotifier>(
       context,
       listen: false,
-    ).barbellInUse;
-    double barbellWeight = getCurrentBarbellTypeDouble(barbellInUse);
+    ).barbellInUse);
 
     if (Provider.of<BarbellDisplayListBlocNotifier>(
               context,
@@ -1717,12 +1739,41 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
     Provider.of<WeightRackBlocNotifier>(context, listen: false)
         .totalPlatesWeight = totalPlatesWeight;
 
+    ///
+    /// Save to provider/notifier in both Lbs and Kilo, this is used by the
+    /// LoafBarvbellView to display the alternative weight metrics.
+    ///
+    if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+        .isIronMasterDumbbellSet) {
+      // Pounds Iron Master Set
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .totalPlatesWeightKg = totalPlatesWeight / POUNDS2KILO_FACTOR;
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .totalPlatesWeightLbs = totalPlatesWeight;
+    } else {
+      // MoJeer Kilo set
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .totalPlatesWeightLbs = totalPlatesWeight * POUNDS2KILO_FACTOR;
+      Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .totalPlatesWeightKg = totalPlatesWeight;
+    }
+
     if (totalPlatesWeight > barbellWeight) {
-      if (totalPlatesWeight == 10) {
-        platesDetailsText += "(Lock Screw)";
-      } else if (totalPlatesWeight > 10) {
-        platesDetailsText += "(Lock Screw)";
-        // platesDetailsText += "+ (Lock Screws)";
+      if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+          .isIronMasterDumbbellSet) {
+        if (totalPlatesWeight == 10) {
+          platesDetailsText += "(Lock Screw)";
+        } else if (totalPlatesWeight > 10) {
+          platesDetailsText += "(Lock Screw)";
+          // platesDetailsText += "+ (Lock Screws)";
+        }
+      } else {
+        if (totalPlatesWeight == 6) {
+          platesDetailsText += "(Lock Screw)";
+        } else if (totalPlatesWeight > 6) {
+          platesDetailsText += "(Lock Screw)";
+          // platesDetailsText += "+ (Lock Screws)";
+        }
       }
 
       String addPlatesMessage = "Add to each side:";
@@ -1922,8 +1973,8 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
       ///
       /// Init to false
       ///
-      Provider.of<WeightRackBlocNotifier>(context, listen: false)
-          .useHeavy22lbPlatesBottomRight = false;
+      // Provider.of<WeightRackBlocNotifier>(context, listen: false)
+      //     .useHeavy22lbPlatesBottomRight = false;
 
       ///
       /// If the target weight "requires" the 22.5lb plates,
@@ -2353,6 +2404,12 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
           listen: false,
         ).ironMaster165lbPlatesList;
       case 4:
+        weightPlatesList = Provider.of<WeightRackBlocNotifier>(
+          context,
+          listen: false,
+        ).moJeer20KgPlatesList;
+        break;
+      case 5:
         weightPlatesList = Provider.of<WeightRackBlocNotifier>(
           context,
           listen: false,
