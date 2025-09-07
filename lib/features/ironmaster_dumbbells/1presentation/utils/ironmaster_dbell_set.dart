@@ -262,7 +262,7 @@ String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
     /// 3. With 2 x 22.5lb plate pair + 5lb plates
     ///
 
-    double arrayOf22DotFiveWeightIncrement[] = [80, 100];
+    List<double> arrayOf22DotFiveWeightIncrement = [80.0, 100.0];
     // double arrayOf22DotFiveWeightIncrement[] = [55, 100];
 
     ///
