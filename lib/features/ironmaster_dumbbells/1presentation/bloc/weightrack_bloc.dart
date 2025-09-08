@@ -1692,8 +1692,26 @@ class WeightrackBloc extends Bloc<WeightrackEvent, WeightrackState> {
             animatedBarbell.platesList[index].name !=
                 animatedBarbell.platesList[lastAnimatedPlateIndex].name) {
           int plateCount = plateCounter - 1;
-          platesDetailsText +=
-              "(${plateCount.toStringAsFixed(1)} x ${animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight.toStringAsFixed(1)}) + ";
+          if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+                  .isMoJeerDumbbellSet ==
+              true) {
+            // Kilo set
+            platesDetailsText +=
+                "(${plateCount.toStringAsFixed(0)} x ${animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight.toStringAsFixed(0)}kg) + ";
+          } else {
+            if (animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight %
+                    5 ==
+                0) {
+              // Pounds set - whole number
+              platesDetailsText +=
+                  "(${plateCount.toStringAsFixed(0)} x ${animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight.toStringAsFixed(0)}lb) + ";
+            } else {
+              // Pounds set
+              platesDetailsText +=
+                  "(${plateCount.toStringAsFixed(0)} x ${animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight.toStringAsFixed(1)}lb) + ";
+            }
+          }
+          //     "(${plateCount.toStringAsFixed(0)} x ${animatedBarbell.platesList[lastAnimatedPlateIndex].realWeight.toStringAsFixed(0)}kg) + ";
 
           plateCounter = 1;
         }

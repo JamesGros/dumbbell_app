@@ -2227,7 +2227,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                                     .isMoJeerDumbbellSet ==
                                                                 true)
                                                         ? " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightLbs).floor()}lbs)"
-                                                        : "",
+                                                        : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
 
                                                     ///
                                                     /// Dont show the kg equivalent when in lb mode for Iron Master dumbbells

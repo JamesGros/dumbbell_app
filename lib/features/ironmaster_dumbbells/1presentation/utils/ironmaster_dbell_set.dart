@@ -167,6 +167,33 @@ String gGetCurrent75lbWeightList(double real5lbWeight) {
 ///
 ///   Function:  gGetCurrent120lbWeightList
 ///
+///
+///
+// 5
+// 10
+// 15
+// 20
+// 25
+// 30
+// 35
+// 40
+// 40
+// 45
+// 50
+// 55
+// 60
+// 65
+// 70
+// 75
+// 80
+// 85
+// 90
+// 95
+// 100
+// 105
+// 110
+// 115
+// 120
 /////////////////////////////////////////////////////////////////////////////////////////////////
 String gGetCurrent120lbWeightList(double real5lbWeight) {
   ///
@@ -215,87 +242,160 @@ String gGetCurrent120lbWeightList(double real5lbWeight) {
 /// When 22.5lb checkbox plate selected:
 /// [5, 10, 15, 20, 25, 29, 34, 39, 43, 48, 52, 57, 62, 66, 71, 93, 116, 138, 161]
 ///
+///
+// 5
+// 10
+// 15
+// 20
+// 25
+// 30
+// 35
+// 40
+// 40
+// 45
+// 50
+// 55
+// 60
+// 65
+// 70
+// 75
+// 80
+// 85
+// 90
+// 95
+// 100
+// 105
+// 110
+// 115
+// 120
+// 125
+// 130
+// 135
+// 140
+// 145
+// 150
+// 155
+// 160
+// 165
+///
 /////////////////////////////////////////////////////////////////////////////////////////////////
 String gGetCurrent165lbWeightList(BuildContext context, double real5lbWeight) {
-  ///
-  /// Create a list of plates increasing in weight.
-  /// This is converted to jSon format
-  ///
-  List<dynamic> weightList = [5.0, 10.0, 15.0];
-  const int TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE = 6;
-  //show22lbPlatesCheckboxAndGraphics = true;
-  if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
-          .useHeavy22lbPlatesBottomRight ==
-      false) {
-    double currentWeight = 15.0;
+  // ///
+  // /// Create a list of plates increasing in weight.
+  // /// This is converted to jSon format
+  // ///
+  // List<dynamic> weightList = [5.0, 10.0, 15.0];
+  // const int TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE = 6;
+  // //show22lbPlatesCheckboxAndGraphics = true;
+  // if (Provider.of<WeightRackBlocNotifier>(context, listen: false)
+  //         .useHeavy22lbPlatesBottomRight ==
+  //     false) {
+  //   double currentWeight = 15.0;
 
-    for (int i = 1; i <= TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE; ++i) {
-      double formatedWeight = 10.0 + (real5lbWeight * (2 * i));
+  //   for (int i = 1; i <= TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE; ++i) {
+  //     double formatedWeight = 10.0 + (real5lbWeight * (2 * i));
 
-      weightList.add(formatedWeight.ceil()); //.toDouble());
-      weightList.add((formatedWeight + 5.0).ceil()); //.toDouble());
-      currentWeight += (real5lbWeight * 2);
-      currentWeight = currentWeight.ceilToDouble();
-    }
+  //     weightList.add(formatedWeight.ceil()); //.toDouble());
+  //     weightList.add((formatedWeight + 5.0).ceil()); //.toDouble());
+  //     currentWeight += (real5lbWeight * 2);
+  //     currentWeight = currentWeight.ceilToDouble();
+  //   }
 
-    ///
-    /// 165lb Set comes with four 22.5 plates per dunbbell..
-    ///
-    double maxWeight = 15.0 +
-        (4 * 22.5) +
-        (real5lbWeight * (TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2));
-    while (currentWeight < maxWeight) {
-      currentWeight += real5lbWeight;
-      // currentWeight = currentWeight.ceilToDouble();
+  //   ///
+  //   /// 165lb Set comes with four 22.5 plates per dunbbell..
+  //   ///
+  //   double maxWeight = 15.0 +
+  //       (4 * 22.5) +
+  //       (real5lbWeight * (TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2));
+  //   while (currentWeight < maxWeight) {
+  //     currentWeight += real5lbWeight;
+  //     // currentWeight = currentWeight.ceilToDouble();
 
-      weightList.add(currentWeight.ceil());
-    }
-    if (kDebugMode) {
-      print("22.5lb NOT CHECKED weightList[] = $weightList");
-    }
-  } else {
-    ///
-    /// To get list of ALL possible weight combinations,
-    /// when 22.5lb checkbox is checked, then iterate:
-    /// 1. With all 5lb plates. - Until < 55lb
-    /// 2. With 22.5lb plate pair + 5lb plates
-    /// 3. With 2 x 22.5lb plate pair + 5lb plates
-    ///
+  //     weightList.add(currentWeight.ceil());
+  //   }
+  //   if (kDebugMode) {
+  //     print("22.5lb NOT CHECKED weightList[] = $weightList");
+  //   }
+  // } else {
+  //   ///
+  //   /// To get list of ALL possible weight combinations,
+  //   /// when 22.5lb checkbox is checked, then iterate:
+  //   /// 1. With all 5lb plates. - Until < 55lb
+  //   /// 2. With 22.5lb plate pair + 5lb plates
+  //   /// 3. With 2 x 22.5lb plate pair + 5lb plates
+  //   ///
 
-    List<double> arrayOf22DotFiveWeightIncrement = [80.0, 100.0];
-    // double arrayOf22DotFiveWeightIncrement[] = [55, 100];
+  //   List<double> arrayOf22DotFiveWeightIncrement = [80.0, 100.0];
+  //   // double arrayOf22DotFiveWeightIncrement[] = [55, 100];
 
-    ///
-    /// 165lb Set comes with four 22.5 plates per dunbbell..
-    ///
-    double currentWeight = 15.0;
+  //   ///
+  //   /// 165lb Set comes with four 22.5 plates per dunbbell..
+  //   ///
+  //   double currentWeight = 15.0;
 
-    double maxWeight = currentWeight +
-        (4 * 22.5) +
-        (real5lbWeight * (TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2));
+  //   double maxWeight = currentWeight +
+  //       (4 * 22.5) +
+  //       (real5lbWeight * (TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2));
 
-    // Add 4.5lb / 5lb Plates
-    int add5lbPlateCount = 0;
-    while (add5lbPlateCount < TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2) {
-      currentWeight += real5lbWeight;
-      // currentWeight = currentWeight.ceilToDouble();
-      add5lbPlateCount++;
+  //   // Add 4.5lb / 5lb Plates
+  //   int add5lbPlateCount = 0;
+  //   while (add5lbPlateCount < TOTAL_5LB_PLATES_PER_DUMBBELL_SIDE * 2) {
+  //     currentWeight += real5lbWeight;
+  //     // currentWeight = currentWeight.ceilToDouble();
+  //     add5lbPlateCount++;
 
-      weightList.add(currentWeight.ceil());
-    }
+  //     weightList.add(currentWeight.ceil());
+  //   }
 
-    // Add 22.5lb plates
-    int add22p5PlateCount = 0;
-    while (add22p5PlateCount < 4) {
-      currentWeight += 22.5;
-      add22p5PlateCount++;
-      weightList.add(currentWeight.ceil());
-    }
+  //   // Add 22.5lb plates
+  //   int add22p5PlateCount = 0;
+  //   while (add22p5PlateCount < 4) {
+  //     currentWeight += 22.5;
+  //     add22p5PlateCount++;
+  //     weightList.add(currentWeight.ceil());
+  //   }
 
-    if (kDebugMode) {
-      print("22.5lb CHECKED weightList[] = $weightList");
-    }
-  }
+  //   if (kDebugMode) {
+  //     print("22.5lb CHECKED weightList[] = $weightList");
+  //   }
+  // }
+
+  List<double> weightList = [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100,
+    105,
+    110,
+    115,
+    120,
+    125,
+    130,
+    135,
+    140,
+    145,
+    150,
+    155,
+    160,
+    165
+  ];
 
   ///
   /// Use jsonEncode() function to create the Picker Data List.
