@@ -3,27 +3,121 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/bloc/preference_bloc.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/commonSwitch_model.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/loadbarbell_model.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/loadbarbell_notifier.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/pages/settings_view.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/utils/ironmaster_dbell_set.dart';
-import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/show_picker_dialog_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
+import 'package:provider/provider.dart';
 
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/bloc/preference_bloc.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/bloc/weightrack_bloc.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/globals/globals.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/commonSwitch_model.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/models/loadbarbell_model.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/loadbarbell_notifier.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/menu_notifier.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/preference_notifier.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/notifiers/weightrack_notifier.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/pages/add_exercise_page.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/pages/settings_view.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/utils/ironmaster_dbell_set.dart';
 import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/animated_barbell.dart';
-import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
-import 'package:provider/provider.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/exercise_details_widget.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/sets_reps_row.dart';
+import 'package:dumbbell_app/features/ironmaster_dumbbells/1presentation/widgets/show_picker_dialog_widgets.dart';
+
+class ExerciseStruct {
+  String name;
+  String type;
+  String muscle;
+  String equipment;
+  String difficulty;
+  String instructions;
+
+  ExerciseStruct({
+    required this.name,
+    required this.type,
+    required this.muscle,
+    required this.equipment,
+    required this.difficulty,
+    required this.instructions,
+  });
+
+  ExerciseStruct copyWith({
+    String? name,
+    String? type,
+    String? muscle,
+    String? equipment,
+    String? difficulty,
+    String? instructions,
+  }) {
+    return ExerciseStruct(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      muscle: muscle ?? this.muscle,
+      equipment: equipment ?? this.equipment,
+      difficulty: difficulty ?? this.difficulty,
+      instructions: instructions ?? this.instructions,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'type': type,
+      'muscle': muscle,
+      'equipment': equipment,
+      'difficulty': difficulty,
+      'instructions': instructions,
+    };
+  }
+
+  factory ExerciseStruct.fromMap(Map<String, dynamic> map) {
+    return ExerciseStruct(
+      name: map['name'] ?? '',
+      type: map['type'] ?? '',
+      muscle: map['muscle'] ?? '',
+      equipment: map['equipment'] ?? '',
+      difficulty: map['difficulty'] ?? '',
+      instructions: map['instructions'] ?? '',
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory ExerciseStruct.fromJson(String source) =>
+      ExerciseStruct.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'ExerciseStruct(name: $name, type: $type, muscle: $muscle, equipment: $equipment, difficulty: $difficulty, instructions: $instructions)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ExerciseStruct &&
+        other.name == name &&
+        other.type == type &&
+        other.muscle == muscle &&
+        other.equipment == equipment &&
+        other.difficulty == difficulty &&
+        other.instructions == instructions;
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode ^
+        type.hashCode ^
+        muscle.hashCode ^
+        equipment.hashCode ^
+        difficulty.hashCode ^
+        instructions.hashCode;
+  }
+}
 
 class LoadBarbellView extends StatefulWidget {
   static route() => MaterialPageRoute(
@@ -181,6 +275,18 @@ class LoadBarbellViewState extends State<LoadBarbellView>
   late AnimationController _rotateDumbbellAnimController;
   late AnimationController _rotateWeightTextAnimController;
 
+// From exerciseDetailsPage.dart
+  ExerciseStruct exercise = ExerciseStruct(
+    name: 'Dumbell Exercise',
+    type: 'Dumbbell',
+    muscle: 'Chest',
+    equipment: 'Ironmaster Dumbbells',
+    difficulty: 'Medium',
+    instructions: 'Load locking collars, set weight, and exercise.',
+  );
+
+  // List<SetData> sets = [];
+
   // Animation<double> rot;
   // Tween<double> rotateAnimation;
   // Animation<double> trasl;
@@ -211,54 +317,7 @@ class LoadBarbellViewState extends State<LoadBarbellView>
       vsync: this,
     );
 
-    // rot = Tween<double>(
-    //   begin: 0,
-    //   end: 2 * pi,
-    // ).animate(_rotateAnimController);
-
-    // trasl = Tween<double>(
-    //   begin: 0,
-    //   end: 300,
-    // ).animate(_rotateAnimController);
-
-    // _rotateAnimController.repeat();
-
-    ///
-    /// Test Animation of Rotate/Translate - END
-    ///
-    // ResoCoder:  Used the,
-    //            TextField(
-    //              decoration: InputDecoration(border: OutlineInputBorder(),
-    //              hintText: 'Input Weight'),
-    // to display in input field.
-    //enterWeightTextEditController.text = "0";
-
-    ///
-    /// MenuNotifier is not used for Iron Master App
-    ///
-    // enterWeightTextEditController.addListener(_enterWeightTextListener);
-
     _myFocusNode = FocusNode();
-
-    // /// The keyboard is handled differently on IOS, the "DONE"
-    // /// button is displayed using the InputDoneView class.
-    // /// Credits:  Ramankit Singh
-    // /// URL: https://blog.usejournal.com/keyboard-done-button-ux-in-flutter-ios-app-3b29ad46bacc
-    // if (Platform.isIOS) {
-    //   _myFocusNode.addListener(() {
-    //     bool hasFocus = _myFocusNode.hasFocus;
-    //     if (hasFocus)
-    //       showOverlay(context);
-    //     else
-    //       removeOverlay();
-    //   });
-
-    //   KeyboardVisibilityNotification().addNewListener(
-    //     onHide: () {
-    //       removeOverlay();
-    //     },
-    //   );
-    // }
 
     _scrollControllerForPlateLoadedList = ScrollController();
     _scrollControllerForPlateAvailableList = ScrollController();
@@ -280,7 +339,22 @@ class LoadBarbellViewState extends State<LoadBarbellView>
     // Provider.of<WeightRackBlocNotifier>(context, listen: false)
     //     .ironMasterWeightMaxIndex = _ironMasterWeightIndexMax;
     gIronMasterWeightMaxIndex = _ironMasterWeightIndexMax;
+
+// From exerciseDetailsPage.dart
+    // addSet();
   }
+
+  // void addSet() {
+  //   setState(() {
+  //     sets.add(SetData());
+  //   });
+  // }
+
+  // void removeSet(int index) {
+  //   setState(() {
+  //     sets.removeAt(index);
+  //   });
+  // }
 
   // /// The keyboard is handled differently on IOS, the "DONE"
   // /// button is displayed using the InputDoneView class.
@@ -1607,31 +1681,39 @@ class LoadBarbellViewState extends State<LoadBarbellView>
 
     final blocPrefs = Provider.of<PreferenceProvider>(context).bloc;
     return StreamBuilder<Object>(
-        stream: blocPrefs.brightness,
-        builder: (context, snapshotBrightness) {
-          // if (!snapshotBrightness.hasData) {
-          //   return Container(
-          //     decoration: BoxDecoration(
-          //       gradient: LinearGradient(
-          //           colors: [Color(0xFF485563), Color(0xFF29323C)],
-          //           tileMode: TileMode.clamp,
-          //           begin: Alignment.topCenter,
-          //           stops: [0.0, 1.0],
-          //           end: Alignment.bottomCenter),
-          //     ),
-          //   );
-          // }
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: (snapshotBrightness.data == Brightness.light)
-                      ? [Color(0xFFaaaaaa), Color(0xFFeeeeee)]
-                      : [Color(0xFF485563), Color(0xFF29323C)],
-                  tileMode: TileMode.clamp,
-                  begin: Alignment.topCenter,
-                  stops: [0.0, 1.0],
-                  end: Alignment.bottomCenter),
-            ),
+      stream: blocPrefs.brightness,
+      builder: (context, snapshotBrightness) {
+        // if (!snapshotBrightness.hasData) {
+        //   return Container(
+        //     decoration: BoxDecoration(
+        //       gradient: LinearGradient(
+        //           colors: [Color(0xFF485563), Color(0xFF29323C)],
+        //           tileMode: TileMode.clamp,
+        //           begin: Alignment.topCenter,
+        //           stops: [0.0, 1.0],
+        //           end: Alignment.bottomCenter),
+        //     ),
+        //   );
+        // }
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: (snapshotBrightness.data == Brightness.light)
+                    ? [Color(0xFFaaaaaa), Color(0xFFeeeeee)]
+                    : [Color(0xFF485563), Color(0xFF29323C)],
+                tileMode: TileMode.clamp,
+                begin: Alignment.topCenter,
+                stops: [0.0, 1.0],
+                end: Alignment.bottomCenter),
+          ),
+          child: GestureDetector(
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus &&
+                  currentFocus.focusedChild != null) {
+                currentFocus.focusedChild!.unfocus();
+              }
+            },
             child: Scaffold(
               // key: _scaffoldKey, // For Picker
               // backgroundColor: Colors.transparent,
@@ -1726,886 +1808,441 @@ class LoadBarbellViewState extends State<LoadBarbellView>
               ),
 
               // resizeToAvoidBottomInset: false,
-              body: Container(
-                height: (mediaQuery.size.height -
-                        mediaQuery.padding.top -
-                        kToolbarHeight) *
-                    // (mediaQuery.size.height - mediaQuery.padding.top - kToolbarHeight) *
-                    1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: (snapshotBrightness.data == Brightness.light)
-                          ? [Color(0xFFaaaaaa), Color(0xFFeeeeee)]
-                          : [Color(0xFF485563), Color(0xFF29323C)],
-                      // [Color(0xFF485563), Color(0xFF29323C)],
-                      tileMode: TileMode.clamp,
-                      begin: Alignment.topCenter,
-                      stops: [0.0, 1.0],
-                      end: Alignment.bottomCenter),
-                ),
-                // padding: EdgeInsets.all(0.0),
-                child: BlocListener<WeightrackBloc, WeightrackState>(
-                  listener: (context, state) {
-                    if (state is WeightrackError) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(state.message),
-                      ));
-                      // Scaffold.of(context).showSnackBar(
-                      //   SnackBar(
-                      //     content: Text(state.message),
-                      //   ),
-                      // );
-                    }
-                  },
-                  child: BlocBuilder<WeightrackBloc, WeightrackState>(
-                    builder: (context, state) {
-                      if (state is WeightrackInitial) {
-                        // // Immediately trigger the event
-                        // BlocProvider.of<WeightrackBloc>(context)
-                        //     .add(WeightrackInitializePlate(
-                        //         context,
-                        //         _queryEnteredWeightTopLeft, //_queryEnteredWeightBottomRight,
-                        //         _oneRepMax,
-                        //         _percent,
-                        //         _barbell,
-                        //         // true indicates Top/Left dumbbell
-                        //         true));
-                        // BlocProvider.of<WeightrackBloc>(context)
-                        //     .add(WeightrackInitializePlate(
-                        //         context,
-                        //         _queryEnteredWeightBottomRight, //_queryEnteredWeightTopLeft,
-                        //         _oneRepMax,
-                        //         _percent,
-                        //         _barbell2,
-                        //         // false indicates Bottom/Right dumbbell
-                        //         false));
-                      }
+              body: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                final keyboardVisible =
+                    MediaQuery.of(context).viewInsets.bottom > 0;
 
-                      return Stack(
-                        // alignment: AlignmentDirectional.center,
-                        children: [
-                          ///
-                          /// FIXED Positioned widget
-                          ///
-                          // Positioned(
-                          //   left: 0,
-                          //   right: 0,
-                          //   top: 0,
-                          //   bottom: mediaQuery.size.height -
-                          //       mediaQuery.padding.top -
-                          //       kToolbarHeight -
-                          //       64,
-                          //   child: Center(
-                          //     // heightFactor: mediaQuery.size.height / 2,
-                          //     // widthFactor: mediaQuery.size.width / 2,
-                          //     child: Text(
-                          //       gGetDumbbellSetString(
-                          //         Provider.of<WeightRackBlocNotifier>(context,
-                          //                 listen: true)
-                          //             .dumbbellSet,
-                          //       ),
-                          //       style: TextStyle(
-                          //         fontSize: 18,
-                          //         // fontStyle: FontStyle.italic,
-                          //         fontWeight: FontWeight.bold,
-                          //         color: (snapshotBrightness.data ==
-                          //                 Brightness.light)
-                          //             ? Colors.black
-                          //             : Colors.white,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-                          Positioned(
-                            bottom: (mediaQuery.size.height -
-                                    mediaQuery.padding.top -
-                                    kToolbarHeight) *
-                                .12,
-                            child: (_barbell2.myStateInstance != null)
-                                ? Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: _barbell2
-                                        .myStateInstance.platesUsedDetail,
-                                  )
-                                : Text(
-                                    "_barbell2.myStateInstance is NULL!",
-                                    style: TextStyle(
-                                        color: Color.fromARGB(0, 210, 53, 53)),
-                                  ),
-                            //Container(),
-                          ),
+                return Stack(
+                  children: [
+                    Container(
+                      height: (mediaQuery.size.height -
+                              mediaQuery.padding.top -
+                              kToolbarHeight) *
+                          // (mediaQuery.size.height - mediaQuery.padding.top - kToolbarHeight) *
+                          1,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors:
+                                (snapshotBrightness.data == Brightness.light)
+                                    ? [Color(0xFFaaaaaa), Color(0xFFeeeeee)]
+                                    : [Color(0xFF485563), Color(0xFF29323C)],
+                            // [Color(0xFF485563), Color(0xFF29323C)],
+                            tileMode: TileMode.clamp,
+                            begin: Alignment.topCenter,
+                            stops: [0.0, 1.0],
+                            end: Alignment.bottomCenter),
+                      ),
+                      // padding: EdgeInsets.all(0.0),
+                      child: BlocListener<WeightrackBloc, WeightrackState>(
+                        listener: (context, state) {
+                          if (state is WeightrackError) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(state.message),
+                            ));
+                            // Scaffold.of(context).showSnackBar(
+                            //   SnackBar(
+                            //     content: Text(state.message),
+                            //   ),
+                            // );
+                          }
+                        },
+                        child: BlocBuilder<WeightrackBloc, WeightrackState>(
+                          builder: (context, state) {
+                            if (state is WeightrackInitial) {
+                              // // Immediately trigger the event
+                              // BlocProvider.of<WeightrackBloc>(context)
+                              //     .add(WeightrackInitializePlate(
+                              //         context,
+                              //         _queryEnteredWeightTopLeft, //_queryEnteredWeightBottomRight,
+                              //         _oneRepMax,
+                              //         _percent,
+                              //         _barbell,
+                              //         // true indicates Top/Left dumbbell
+                              //         true));
+                              // BlocProvider.of<WeightrackBloc>(context)
+                              //     .add(WeightrackInitializePlate(
+                              //         context,
+                              //         _queryEnteredWeightBottomRight, //_queryEnteredWeightTopLeft,
+                              //         _oneRepMax,
+                              //         _percent,
+                              //         _barbell2,
+                              //         // false indicates Bottom/Right dumbbell
+                              //         false));
+                            }
 
-                          ///
-                          /// FIXED Positioned  Settings Widget
-                          ///
-
-                          // Positioned(
-                          //   bottom: 10,
-                          //   left: 10,
-                          //   child: IconButton(
-                          //     onPressed: () {
-                          //       Navigator.push(context, SettingsPage.route());
-                          //     },
-                          //     icon: const Icon(
-                          //       CupertinoIcons.settings,
-                          //     ),
-                          //   ),
-                          // ),
-
-                          // ///
-                          // /// FIXED Positioned widget
-                          // ///
-                          // Positioned(
-                          //   bottom: 200,
-                          //   right: 20,
-                          //   child: GestureDetector(
-                          //       onTap: () async {
-                          //         setState(() {
-                          //           bRotateIronMasterView =
-                          //               !bRotateIronMasterView;
-
-                          //           if (bRotateIronMasterView == true) {
-                          //             _rotateDumbbellAnimController.forward();
-                          //             _rotateWeightTextAnimController.forward();
-                          //           } else {
-                          //             _rotateDumbbellAnimController.reverse();
-                          //             _rotateWeightTextAnimController.reverse();
-                          //           }
-                          //         });
-
-                          //         /// manage the state of each value
-
-                          //         // RotateIronMasterView = !gRotateIronMasterView;
-
-                          //         Provider.of<WeightRackBlocNotifier>(context,
-                          //                     listen: false)
-                          //                 .isRotatedViewMode =
-                          //             bRotateIronMasterView;
-                          //       },
-                          //       child: (bRotateIronMasterView)
-                          //           ? Icon(Icons.rotate_right_sharp,
-                          //               color: (snapshotBrightness.data ==
-                          //                       Brightness.light)
-                          //                   ? Colors.black
-                          //                   : Colors.white,
-                          //               size: 72)
-                          //           : Icon(Icons.rotate_left_sharp,
-                          //               color: (snapshotBrightness.data ==
-                          //                       Brightness.light)
-                          //                   ? Colors.black
-                          //                   : Colors.white,
-                          //               size: 72)),
-                          // ),
-
-                          CustomScrollView(
-                            // key: barbellStateKey,
-                            shrinkWrap: true,
-                            slivers: <Widget>[
-                              SliverList(
+                            return Column(
+                              children: [
                                 ///
-                                /// Special Information:
-                                ///   Using a SliverChildListDelegate works better with the popup
-                                ///   keyboard when entering desired weight.
-                                ///
-                                delegate: SliverChildListDelegate(
-                                  [
-                                    // (kDebugMode)
-                                    //     ?
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 4.0,
-                                          bottom:
-                                              mediaQuery.size.height * .180),
-                                      child: SizedBox(
-                                        height: 60,
-                                      ),
-                                    ),
-                                    // :
-                                    // Padding(
-                                    //     padding: EdgeInsets.only(
-                                    //         top: 4.0,
-                                    //         bottom: mediaQuery.size.height *
-                                    //             .180),
-                                    //     child:
-                                    // Column(
-                                    //   children: [
-                                    //     Text(
-                                    //       gGetDumbbellSetString(
-                                    //         Provider.of<WeightRackBlocNotifier>(
-                                    //                 context,
-                                    //                 listen: true)
-                                    //             .dumbbellSet,
-                                    //       ),
-                                    //       // style: TextStyle(
-                                    //       //   fontSize: 16,
-                                    //       //   color: Colors.orangeAccent,
-                                    //       // ),
-                                    //       style: TextStyle(
-                                    //           color: Theme.of(context)
-                                    //               .textSelectionTheme
-                                    //               .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                    //           fontSize: 16.0,
-                                    //           fontWeight:
-                                    //               FontWeight.bold),
-                                    //     ),
-                                    //     SizedBox(
-                                    //       height: 60,
-                                    //       child: MultiSelectContainer(
-                                    //           maxSelectableCount: 1,
-                                    //           singleSelectedItem: true,
-                                    //           isMaxSelectableWithPerpetualSelects:
-                                    //               true,
-                                    //           showInListView: true,
-                                    //           listViewSettings:
-                                    //               ListViewSettings(
-                                    //                   scrollDirection:
-                                    //                       Axis
-                                    //                           .horizontal,
-                                    //                   separatorBuilder: (_,
-                                    //                           __) =>
-                                    //                       const SizedBox(
-                                    //                         width: 10,
-                                    //                       )),
-                                    //           items: [
-                                    //             MultiSelectCard(
-                                    //                 value: '45lb Set',
-                                    //                 label: '45lb Set'),
-                                    //             MultiSelectCard(
-                                    //                 value: '75lb Set',
-                                    //                 label: '75lb Set'),
-                                    //             MultiSelectCard(
-                                    //                 value: '120lb Set',
-                                    //                 label: '120lb Set'),
-                                    //             MultiSelectCard(
-                                    //                 value: '165lb Set',
-                                    //                 label: '165lb Set'),
-                                    //           ],
-                                    //           onChange:
-                                    //               (allSelectedItems,
-                                    //                   selectedItem) {
-                                    //             if (kDebugMode) {
-                                    //               print(
-                                    //                   'selectedItem = $selectedItem');
-                                    //             }
-                                    //             Provider.of<WeightRackBlocNotifier>(
-                                    //                         context,
-                                    //                         listen: false)
-                                    //                     .dumbbellSet =
-                                    //                 gGetDumbbellSetIndex(
-                                    //                     selectedItem);
-
-                                    //             // Set maxes
-                                    //             gIronMasterWeightMaxIndex =
-                                    //                 gGetIronMasterDumbbellSetMaxIndex(
-                                    //                     context);
-                                    //             Provider.of<
-                                    //                     WeightRackBlocNotifier>(
-                                    //               context,
-                                    //               listen: false,
-                                    //             ).ironMasterBottomViewWeightIndex =
-                                    //                 gIronMasterWeightMaxIndex -
-                                    //                     1;
-
-                                    //             gIronMasterBottomViewWeightIndex =
-                                    //                 gIronMasterWeightMaxIndex -
-                                    //                     1;
-                                    //           }),
-                                    //     )
-                                    //   ],
-                                    // ),
-                                    // ),
-
-                                    ///
-                                    /// Test Animation of Rotate/Translate - END
-                                    ///
-
-                                    RotationTransition(
-                                      turns: Tween(begin: 0.0, end: -0.25)
-                                          // turns: Tween(begin: 0.0, end: 1.0)
-                                          .animate(
-                                              _rotateDumbbellAnimController),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width +
-                                                20,
-                                        height:
-                                            gDumbbellContainerAreaHeight + 20,
-                                        child:
-
-                                            ///
-                                            /// Barbell View Bottom/Right
-                                            ///
-                                            Column(
+                                /// Purpose: Provides a highly customizable scrolling container that can combine multiple slivers with different scrolling behaviors.
+                                Expanded(
+                                  child: CustomScrollView(
+                                    // key: barbellStateKey,
+                                    shrinkWrap: true,
+                                    slivers: <Widget>[
+                                      SliverAppBar(
+                                        title: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           children: [
-                                            _buildWeightPlate(
-                                                _barbell2,
-                                                _queryEnteredWeightBottomRight
-                                                    .toDouble()),
-
-                                            ///
-                                            /// Display Weight Text
-                                            ///
-                                            // Row(
-                                            //   mainAxisAlignment:
-                                            //       MainAxisAlignment.center,
-                                            //   crossAxisAlignment:
-                                            //       CrossAxisAlignment.center,
-                                            //   children: [
-                                            //     RotationTransition(
-                                            //       turns: Tween(
-                                            //               begin: 0.0, end: 0.25)
-                                            //           // turns: Tween(begin: 0.0, end: 1.0)
-                                            //           .animate(
-                                            //               _rotateWeightTextAnimController),
-                                            //       child: Text(
-                                            //         Provider.of<WeightRackBlocNotifier>(
-                                            //                 context,
-                                            //                 listen: false)
-                                            //             .totalPlatesWeight
-                                            //             .floor()
-                                            //             .toString(),
-                                            //         style: TextStyle(
-                                            //             color: Theme.of(context)
-                                            //                 .textSelectionTheme
-                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                            //             fontSize: 14.0,
-                                            //             fontWeight:
-                                            //                 FontWeight.bold),
-                                            //       ),
-                                            //     ),
-                                            //     RotationTransition(
-                                            //       turns: Tween(
-                                            //               begin: 0.0, end: 0.25)
-                                            //           // turns: Tween(begin: 0.0, end: 1.0)
-                                            //           .animate(
-                                            //               _rotateWeightTextAnimController),
-                                            //       child: Text(
-                                            //         ((metricSwitch.isSwitchedOn ==
-                                            //                     false) ||
-                                            //                 Provider.of<WeightRackBlocNotifier>(
-                                            //                             context,
-                                            //                             listen:
-                                            //                                 false)
-                                            //                         .dumbbellSet ==
-                                            //                     4)
-                                            //             ? "kg"
-                                            //             : "lb",
-                                            //         style: TextStyle(
-                                            //             color: Theme.of(context)
-                                            //                 .textSelectionTheme
-                                            //                 .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                            //             fontSize: 14.0,
-                                            //             fontWeight:
-                                            //                 FontWeight.bold),
-                                            //       ),
-                                            //     ),
-                                            //   ],
-                                            // ),
+                                            Column(
+                                              children: [
+                                                Text('Date:'),
+                                                Text('Volume:'),
+                                              ],
+                                            ),
                                           ],
                                         ),
+                                        pinned: true,
+                                        snap: false,
+                                        floating: false,
+                                        expandedHeight: 160.0,
+                                        flexibleSpace: FlexibleSpaceBar(
+                                          // title: Text('SliverAppBar'),
+                                          background: Image.asset(
+                                            "lib/features/ironmaster_dumbbells/assets/icons/main_logo.png",
+                                            width: 60,
+                                            height: 60,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-
-                                    // ///
-                                    // /// Row or Column widget containing Left/Right Arrows
-                                    // ///
-                                    // (Provider.of<WeightRackBlocNotifier>(
-                                    //                     context,
-                                    //                     listen: true)
-                                    //                 .isDumbbellSingleView ==
-                                    //             false &&
-                                    //         _barbell.myStateInstance != null &&
-                                    //         Provider.of<BarbellDisplayListBlocNotifier>(
-                                    //                 context,
-                                    //                 listen: true)
-                                    //             .changedPlates)
-                                    //     ? Row(
-                                    //         mainAxisAlignment:
-                                    //             MainAxisAlignment.spaceEvenly,
-                                    //         children: _barbell.myStateInstance
-                                    //             .platesUsedDetail,
-                                    //       )
-                                    //     : Text(
-                                    //         "Failed to display Left/Right Arrows",
-                                    //         style: TextStyle(
-                                    //             color: Color.fromARGB(
-                                    //                 0, 210, 53, 53)),
-                                    //       ),
-
-                                    ///
-                                    /// Moved this container widget here to make space for samller devices
-                                    /// to show the total weight of plates used.
-                                    ///
-                                    // Container(
-                                    //   // width: MediaQuery.of(context).size.width,
-                                    //   width: mediaQuery.size.width * .6,
-                                    //   decoration: BoxDecoration(
-                                    //     ///
-                                    //     /// Add a border color around the plate to make it
-                                    //     /// more visible when plates are stacked next to each
-                                    //     /// other on the barbell.
-                                    //     ///
-                                    //     border: Border.all(
-                                    //       color:
-                                    //           Color.fromRGBO(169, 113, 66, 1.0),
-                                    //     ),
-                                    //     // color: Colors.cyan),
-                                    //     color: Colors.transparent,
-                                    //   ),
-                                    //   // color: Colors.red,
-                                    //   child: Row(
-                                    //     mainAxisAlignment:
-                                    //         MainAxisAlignment.center,
-                                    //     children: [
-                                    //       Text(
-                                    //         "${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeight).floor()}",
-                                    //         style: TextStyle(
-                                    //           color: Theme.of(context)
-                                    //               .textSelectionTheme
-                                    //               .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                    //           fontSize: 14.0,
-                                    //           fontWeight: FontWeight.bold,
-                                    //         ),
-                                    //       ),
-
-                                    //       Text(
-                                    //         ((metricSwitch.isSwitchedOn ==
-                                    //                     false) ||
-                                    //                 Provider.of<WeightRackBlocNotifier>(
-                                    //                             context,
-                                    //                             listen: false)
-                                    //                         .isMoJeerDumbbellSet ==
-                                    //                     true)
-                                    //             ? "kg"
-                                    //             : "lb",
-                                    //         style: TextStyle(
-                                    //           color: Theme.of(context)
-                                    //               .textSelectionTheme
-                                    //               .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                    //           fontSize: 16.0,
-                                    //           fontWeight: FontWeight.bold,
-                                    //         ),
-                                    //       ),
-                                    //       Text(
-                                    //         ((metricSwitch.isSwitchedOn ==
-                                    //                     false) ||
-                                    //                 Provider.of<WeightRackBlocNotifier>(
-                                    //                             context,
-                                    //                             listen: false)
-                                    //                         .isMoJeerDumbbellSet ==
-                                    //                     true)
-                                    //             ? " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightLbs).floor()}lbs)"
-                                    //             : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
-
-                                    //         ///
-                                    //         /// Dont show the kg equivalent when in lb mode for Iron Master dumbbells
-                                    //         /// Because the Row() area overflows with flutter error.
-                                    //         ///
-                                    //         // : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
-                                    //         style: TextStyle(
-                                    //           color: Theme.of(context)
-                                    //               .textSelectionTheme
-                                    //               .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                    //           fontSize: 14.0,
-                                    //           fontWeight: FontWeight.bold,
-                                    //         ),
-                                    //       ),
-
-                                    //       /// Add Padding when 22.5lb plates are used
-                                    //       ((Provider.of<WeightRackBlocNotifier>(
-                                    //                 context,
-                                    //                 listen: false,
-                                    //               )).usesTwentyTwoLbPlates &&
-                                    //               (Provider.of<
-                                    //                           WeightRackBlocNotifier>(
-                                    //                     context,
-                                    //                     listen: false,
-                                    //                   )
-                                    //                       .show22lbPlatesCheckboxAndGraphics ==
-                                    //                   true))
-                                    //           ? Padding(
-                                    //               padding: EdgeInsets.only(
-                                    //                   right: 24))
-                                    //           : Container(),
-
-                                    //       /// Add Checkbox Widget when 22.5lb plates are used.
-                                    //       ((Provider.of<WeightRackBlocNotifier>(
-                                    //                 context,
-                                    //                 listen: false,
-                                    //               )).usesTwentyTwoLbPlates &&
-                                    //               (Provider.of<
-                                    //                       WeightRackBlocNotifier>(
-                                    //                     context,
-                                    //                     listen: false,
-                                    //                   ).show22lbPlatesCheckboxAndGraphics ==
-                                    //                   true))
-                                    //           ? SizedBox(
-                                    //               height: 36,
-                                    //               child:
-                                    //                   // (isTopLeftDumbbell == true)
-                                    //                   //     ? _displayTopLeftUse22lbCheckbox(context)
-                                    //                   //     :
-                                    //                   _displayBottomRightUse22lbCheckbox(
-                                    //                 context,
-                                    //               ),
-                                    //             )
-                                    //           : Container(),
-
-                                    //       /// Display the 22.5lb rectangle widget
-                                    //       ((Provider.of<WeightRackBlocNotifier>(
-                                    //                 context,
-                                    //                 listen: false,
-                                    //               )).usesTwentyTwoLbPlates &&
-                                    //               (Provider.of<
-                                    //                       WeightRackBlocNotifier>(
-                                    //                     context,
-                                    //                     listen: false,
-                                    //                   ).show22lbPlatesCheckboxAndGraphics ==
-                                    //                   true))
-                                    //           ? Stack(
-                                    //               children: [
-                                    //                 Positioned(
-                                    //                   child: Container(
-                                    //                     // foregroundDecoration: StrikeThroughDecoration(),
-                                    //                     decoration:
-                                    //                         BoxDecoration(
-                                    //                       ///
-                                    //                       /// Add a border color around the plate to make it
-                                    //                       /// more visible when plates are stacked next to each
-                                    //                       /// other on the barbell.
-                                    //                       ///
-                                    //                       border: Border.all(
-                                    //                         color:
-                                    //                             Color.fromRGBO(
-                                    //                                 169,
-                                    //                                 113,
-                                    //                                 66,
-                                    //                                 1.0),
-                                    //                       ),
-                                    //                       // color: Colors.cyan),
-                                    //                       color: Colors.black,
-                                    //                     ),
-                                    //                     width: MediaQuery.of(
-                                    //                                 context)
-                                    //                             .size
-                                    //                             .height *
-                                    //                         .10, //MediaQuery.of(context).size.width * .05,
-                                    //                     height: MediaQuery.of(
-                                    //                                 context)
-                                    //                             .size
-                                    //                             .width *
-                                    //                         .05, // MediaQuery.of(context).size.height * .10,
-                                    //                     child: Text(
-                                    //                       "22.5",
-                                    //                       // textScaleFactor: 0.75,
-                                    //                       textScaler: TextScaler
-                                    //                           .noScaling, // .linear(1),
-                                    //                       overflow:
-                                    //                           TextOverflow.clip,
-                                    //                       textAlign:
-                                    //                           TextAlign.center,
-                                    //                       // textDirection: TextDirection.LTR,
-                                    //                       style:
-                                    //                           DefaultTextStyle
-                                    //                                   .of(
-                                    //                         context,
-                                    //                       ).style.apply(
-                                    //                                 fontSizeFactor:
-                                    //                                     0.75,
-                                    //                                 // (widget.widthPlate * 0.75) / widget.widthPlate,
-                                    //                                 color: Colors
-                                    //                                     .white,
-                                    //                               ),
-                                    //                       // textWidthBasis: TextWidthBasis.longestLine,
-                                    //                     ),
-                                    //                   ),
-                                    //                 ),
-                                    //                 (Provider.of<
-                                    //                                 WeightRackBlocNotifier>(
-                                    //                           context,
-                                    //                           listen: false,
-                                    //                         )
-                                    //                             .showStrickthroughOn22lbPlate ==
-                                    //                         true)
-                                    //                     ? Positioned(
-                                    //                         child: Container())
-                                    //                     : Expanded(
-                                    //                         child: Positioned(
-                                    //                           // left: ((MediaQuery.of(context).size.height * .10) -
-                                    //                           //         24) /
-                                    //                           //     2,
-                                    //                           // top: 2,
-                                    //                           child: Container(
-                                    //                             foregroundDecoration:
-                                    //                                 StrikeThroughDecoration(),
-                                    //                             width: MediaQuery.of(
-                                    //                                         context)
-                                    //                                     .size
-                                    //                                     .height *
-                                    //                                 .10, //MediaQuery.of(context).size.width * .05,
-                                    //                             height: MediaQuery.of(
-                                    //                                         context)
-                                    //                                     .size
-                                    //                                     .width *
-                                    //                                 .05, // MediaQuery.of(context).size.height * .10,
-                                    //                           ),
-                                    //                           // const Icon(
-                                    //                           //   Icons.not_interested,
-                                    //                           //   size: 16.0,
-                                    //                           //   color: Colors.deepOrangeAccent,
-                                    //                           // ),
-                                    //                         ),
-                                    //                       ),
-                                    //               ],
-                                    //             )
-                                    //           : Container(),
-                                    //     ],
-                                    //   ),
-                                    // ),
-
-                                    // Padding(
-                                    //   padding: const EdgeInsets.fromLTRB(
-                                    //       24, 128, 24, 24),
-                                    // Use FittedBox to children to scale down to fit inside the available space
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          24, 115, 24, 24),
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            // IconButton(
-                                            //   iconSize: 36,
-                                            //   icon: Icon(Icons.arrow_back_ios),
-                                            //   color: Colors.blueAccent,
-                                            //   onPressed: () async {
-                                            //     // Check and update Bottom or Right side dumbbells
-                                            //     if (gIronMasterBottomViewWeightIndex >
-                                            //         0) {
-                                            //       gIronMasterBottomViewWeightIndex--;
-                                            //       Provider.of<
-                                            //               WeightRackBlocNotifier>(
-                                            //         context,
-                                            //         listen: false,
-                                            //       ).ironMasterBottomViewWeightIndex =
-                                            //           gIronMasterBottomViewWeightIndex;
-                                            //     }
-                                            //   },
-                                            // ),
-                                            Container(
-                                              // width: MediaQuery.of(context).size.width,
-                                              width: mediaQuery.size.width * .8,
-                                              decoration: BoxDecoration(
-                                                ///
-                                                /// Add a border color around the plate to make it
-                                                /// more visible when plates are stacked next to each
-                                                /// other on the barbell.
-                                                ///
-                                                border: Border.all(
-                                                  color: Color.fromRGBO(
-                                                      169, 113, 66, 1.0),
-                                                ),
-                                                // color: Colors.cyan),
-                                                color: Colors.transparent,
+                                      // Purpose: Creates a section of a scrollable area that can be combined with other slivers inside a CustomScrollView.
+                                      SliverList(
+                                        ///
+                                        /// Special Information:
+                                        ///   Using a SliverChildListDelegate works better with the popup
+                                        ///   keyboard when entering desired weight.
+                                        ///
+                                        delegate: SliverChildListDelegate(
+                                          [
+                                            // (kDebugMode)
+                                            //     ?
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: 50.0,
+                                                // bottom:
+                                                // mediaQuery.size.height * .180
                                               ),
-                                              // color: Colors.red,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeight).floor()}",
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .textSelectionTheme
-                                                          .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                                      fontSize: 14.0,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
+                                              child: SizedBox(
+                                                height: 60,
+                                              ),
+                                            ),
 
-                                                  Text(
-                                                    ((metricSwitch.isSwitchedOn ==
-                                                                false) ||
-                                                            Provider.of<WeightRackBlocNotifier>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .isMoJeerDumbbellSet ==
-                                                                true)
-                                                        ? "kg"
-                                                        : "lb",
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .textSelectionTheme
-                                                          .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                                      fontSize: 16.0,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    ((metricSwitch.isSwitchedOn ==
-                                                                false) ||
-                                                            Provider.of<WeightRackBlocNotifier>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .isMoJeerDumbbellSet ==
-                                                                true)
-                                                        ? " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightLbs).floor()}lbs)"
-                                                        : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
+                                            ///
+                                            /// Test Animation of Rotate/Translate - END
+                                            ///
+
+                                            RotationTransition(
+                                              turns: Tween(
+                                                      begin: 0.0, end: -0.25)
+                                                  // turns: Tween(begin: 0.0, end: 1.0)
+                                                  .animate(
+                                                      _rotateDumbbellAnimController),
+                                              child: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width +
+                                                    20,
+                                                height:
+                                                    gDumbbellContainerAreaHeight +
+                                                        20,
+                                                child:
 
                                                     ///
-                                                    /// Dont show the kg equivalent when in lb mode for Iron Master dumbbells
-                                                    /// Because the Row() area overflows with flutter error.
+                                                    /// Barbell View Bottom/Right
                                                     ///
-                                                    // : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .textSelectionTheme
-                                                          .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
-                                                      fontSize: 14.0,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                                    Column(
+                                                  children: [
+                                                    _buildWeightPlate(
+                                                        _barbell2,
+                                                        _queryEnteredWeightBottomRight
+                                                            .toDouble()),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    setState(() {
+                                                      bRotateIronMasterView =
+                                                          !bRotateIronMasterView;
+
+                                                      if (bRotateIronMasterView ==
+                                                          true) {
+                                                        _rotateDumbbellAnimController
+                                                            .forward();
+                                                        _rotateWeightTextAnimController
+                                                            .forward();
+                                                      } else {
+                                                        _rotateDumbbellAnimController
+                                                            .reverse();
+                                                        _rotateWeightTextAnimController
+                                                            .reverse();
+                                                      }
+                                                    });
+
+                                                    /// manage the state of each value
+
+                                                    // RotateIronMasterView = !gRotateIronMasterView;
+
+                                                    Provider.of<WeightRackBlocNotifier>(
+                                                                context,
+                                                                listen: false)
+                                                            .isRotatedViewMode =
+                                                        bRotateIronMasterView;
+                                                  },
+                                                  child: (bRotateIronMasterView)
+                                                      ? Icon(
+                                                          Icons
+                                                              .rotate_right_sharp,
+                                                          color: (snapshotBrightness
+                                                                      .data ==
+                                                                  Brightness
+                                                                      .light)
+                                                              ? Colors.black
+                                                              : Colors.white,
+                                                          size: 36)
+                                                      : Icon(
+                                                          Icons
+                                                              .rotate_left_sharp,
+                                                          color: (snapshotBrightness
+                                                                      .data ==
+                                                                  Brightness
+                                                                      .light)
+                                                              ? Colors.black
+                                                              : Colors.white,
+                                                          size: 36),
+                                                ),
+                                              ],
+                                            ),
+
+                                            ///
+                                            IntrinsicWidth(
+                                              child: Container(
+                                                // width: MediaQuery.of(context).size.width,
+                                                width:
+                                                    mediaQuery.size.width * .8,
+                                                decoration: BoxDecoration(
+                                                  ///
+                                                  /// Add a border color around the plate to make it
+                                                  /// more visible when plates are stacked next to each
+                                                  /// other on the barbell.
+                                                  ///
+                                                  border: Border.all(
+                                                    color: Color.fromRGBO(
+                                                        169, 113, 66, 1.0),
                                                   ),
+                                                  // color: Colors.cyan),
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0), // Optional: Rounded corners
+                                                ),
+                                                // color: Colors.red,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize
+                                                      .min, // Important: Use min to shrink to content
+                                                  children: [
+                                                    Text(
+                                                      "${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeight).floor()}",
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textSelectionTheme
+                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
 
-                                                  /// Add Padding when 22.5lb plates are used
-                                                  ((Provider.of<
-                                                                  WeightRackBlocNotifier>(
-                                                            context,
-                                                            listen: false,
-                                                          ))
-                                                              .usesTwentyTwoLbPlates &&
-                                                          (Provider.of<
-                                                                      WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              )
-                                                                  .show22lbPlatesCheckboxAndGraphics ==
-                                                              true))
-                                                      ? Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  right: 24))
-                                                      : Container(),
+                                                    Text(
+                                                      ((metricSwitch.isSwitchedOn ==
+                                                                  false) ||
+                                                              Provider.of<WeightRackBlocNotifier>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .isMoJeerDumbbellSet ==
+                                                                  true)
+                                                          ? "kg"
+                                                          : "lb",
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textSelectionTheme
+                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                        fontSize: 16.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      ((metricSwitch.isSwitchedOn ==
+                                                                  false) ||
+                                                              Provider.of<WeightRackBlocNotifier>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .isMoJeerDumbbellSet ==
+                                                                  true)
+                                                          ? " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightLbs).floor()}lbs)"
+                                                          : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
 
-                                                  /// Add Checkbox Widget when 22.5lb plates are used.
-                                                  ((Provider.of<
-                                                              WeightRackBlocNotifier>(
-                                                            context,
-                                                            listen: false,
-                                                          )).usesTwentyTwoLbPlates &&
-                                                          (Provider.of<WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              ).show22lbPlatesCheckboxAndGraphics ==
-                                                              true))
-                                                      ? SizedBox(
-                                                          height: 36,
-                                                          child:
-                                                              // (isTopLeftDumbbell == true)
-                                                              //     ? _displayTopLeftUse22lbCheckbox(context)
-                                                              //     :
-                                                              _displayBottomRightUse22lbCheckbox(
-                                                            context,
-                                                          ),
-                                                        )
-                                                      : Container(),
+                                                      ///
+                                                      /// Dont show the kg equivalent when in lb mode for Iron Master dumbbells
+                                                      /// Because the Row() area overflows with flutter error.
+                                                      ///
+                                                      // : " (${(Provider.of<WeightRackBlocNotifier>(context, listen: false).totalPlatesWeightKg).floor()}kg)",
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textSelectionTheme
+                                                            .selectionColor, //.orangeAccent, //Theme.of(context).textSelectionColor, //Colors.black54,
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
 
-                                                  /// Display the 22.5lb rectangle widget
-                                                  ((Provider.of<
-                                                              WeightRackBlocNotifier>(
-                                                            context,
-                                                            listen: false,
-                                                          )).usesTwentyTwoLbPlates &&
-                                                          (Provider.of<WeightRackBlocNotifier>(
-                                                                context,
-                                                                listen: false,
-                                                              ).show22lbPlatesCheckboxAndGraphics ==
-                                                              true))
-                                                      ? Stack(
-                                                          children: [
-                                                            Positioned(
-                                                              child: Container(
-                                                                // foregroundDecoration: StrikeThroughDecoration(),
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  ///
-                                                                  /// Add a border color around the plate to make it
-                                                                  /// more visible when plates are stacked next to each
-                                                                  /// other on the barbell.
-                                                                  ///
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            169,
-                                                                            113,
-                                                                            66,
-                                                                            1.0),
+                                                    /// Add Padding when 22.5lb plates are used
+                                                    ((Provider.of<
+                                                                    WeightRackBlocNotifier>(
+                                                              context,
+                                                              listen: false,
+                                                            ))
+                                                                .usesTwentyTwoLbPlates &&
+                                                            (Provider.of<
+                                                                        WeightRackBlocNotifier>(
+                                                                  context,
+                                                                  listen: false,
+                                                                )
+                                                                    .show22lbPlatesCheckboxAndGraphics ==
+                                                                true))
+                                                        ? Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    right: 24))
+                                                        : Container(),
+
+                                                    /// Add Checkbox Widget when 22.5lb plates are used.
+                                                    ((Provider.of<
+                                                                WeightRackBlocNotifier>(
+                                                              context,
+                                                              listen: false,
+                                                            )).usesTwentyTwoLbPlates &&
+                                                            (Provider.of<WeightRackBlocNotifier>(
+                                                                  context,
+                                                                  listen: false,
+                                                                ).show22lbPlatesCheckboxAndGraphics ==
+                                                                true))
+                                                        ? SizedBox(
+                                                            height: 36,
+                                                            child:
+                                                                // (isTopLeftDumbbell == true)
+                                                                //     ? _displayTopLeftUse22lbCheckbox(context)
+                                                                //     :
+                                                                _displayBottomRightUse22lbCheckbox(
+                                                              context,
+                                                            ),
+                                                          )
+                                                        : Container(),
+
+                                                    /// Display the 22.5lb rectangle widget
+                                                    ((Provider.of<
+                                                                WeightRackBlocNotifier>(
+                                                              context,
+                                                              listen: false,
+                                                            )).usesTwentyTwoLbPlates &&
+                                                            (Provider.of<WeightRackBlocNotifier>(
+                                                                  context,
+                                                                  listen: false,
+                                                                ).show22lbPlatesCheckboxAndGraphics ==
+                                                                true))
+                                                        ? Stack(
+                                                            children: [
+                                                              Positioned(
+                                                                child:
+                                                                    Container(
+                                                                  // foregroundDecoration: StrikeThroughDecoration(),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    ///
+                                                                    /// Add a border color around the plate to make it
+                                                                    /// more visible when plates are stacked next to each
+                                                                    /// other on the barbell.
+                                                                    ///
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Color.fromRGBO(
+                                                                          169,
+                                                                          113,
+                                                                          66,
+                                                                          1.0),
+                                                                    ),
+                                                                    // color: Colors.cyan),
+                                                                    color: Colors
+                                                                        .black,
                                                                   ),
-                                                                  // color: Colors.cyan),
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .height *
-                                                                    .10, //MediaQuery.of(context).size.width * .05,
-                                                                height: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    .05, // MediaQuery.of(context).size.height * .10,
-                                                                child: Text(
-                                                                  "22.5",
-                                                                  // textScaleFactor: 0.75,
-                                                                  textScaler:
-                                                                      TextScaler
-                                                                          .noScaling, // .linear(1),
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .clip,
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  // textDirection: TextDirection.LTR,
-                                                                  style:
-                                                                      DefaultTextStyle
-                                                                              .of(
-                                                                    context,
-                                                                  ).style.apply(
-                                                                            fontSizeFactor:
-                                                                                0.75,
-                                                                            // (widget.widthPlate * 0.75) / widget.widthPlate,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                  // textWidthBasis: TextWidthBasis.longestLine,
+                                                                  width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height *
+                                                                      .10, //MediaQuery.of(context).size.width * .05,
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      .05, // MediaQuery.of(context).size.height * .10,
+                                                                  child: Text(
+                                                                    "22.5",
+                                                                    // textScaleFactor: 0.75,
+                                                                    textScaler:
+                                                                        TextScaler
+                                                                            .noScaling, // .linear(1),
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .clip,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    // textDirection: TextDirection.LTR,
+                                                                    style: DefaultTextStyle
+                                                                            .of(
+                                                                      context,
+                                                                    )
+                                                                        .style
+                                                                        .apply(
+                                                                          fontSizeFactor:
+                                                                              0.75,
+                                                                          // (widget.widthPlate * 0.75) / widget.widthPlate,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                    // textWidthBasis: TextWidthBasis.longestLine,
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                            (Provider.of<
-                                                                            WeightRackBlocNotifier>(
-                                                                      context,
-                                                                      listen:
-                                                                          false,
-                                                                    )
-                                                                        .showStrickthroughOn22lbPlate ==
-                                                                    true)
-                                                                ? Positioned(
-                                                                    child:
-                                                                        Container())
-                                                                : Expanded(
-                                                                    child:
-                                                                        Positioned(
+                                                              (Provider.of<
+                                                                              WeightRackBlocNotifier>(
+                                                                        context,
+                                                                        listen:
+                                                                            false,
+                                                                      )
+                                                                          .showStrickthroughOn22lbPlate ==
+                                                                      true)
+                                                                  ? Positioned(
+                                                                      child:
+                                                                          Container())
+                                                                  :
+                                                                  // Expanded(
+                                                                  //     child:
+                                                                  Positioned(
                                                                       // left: ((MediaQuery.of(context).size.height * .10) -
                                                                       //         24) /
                                                                       //     2,
@@ -2625,11 +2262,12 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                                       //   color: Colors.deepOrangeAccent,
                                                                       // ),
                                                                     ),
-                                                                  ),
-                                                          ],
-                                                        )
-                                                      : Container(),
-                                                ],
+                                                              // ),
+                                                            ],
+                                                          )
+                                                        : Container(),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                             SizedBox(
@@ -2683,125 +2321,152 @@ class LoadBarbellViewState extends State<LoadBarbellView>
                                                 ),
                                               ],
                                             ),
+                                            // const SizedBox(height: 20),
+                                            // ElevatedButton(
+                                            //   onPressed: () {
+                                            //     Navigator.push(
+                                            //       context,
+                                            //       MaterialPageRoute(
+                                            //           builder: (context) =>
+                                            //               const AddExercisePage()),
+                                            //     );
+                                            //   },
+                                            //   child: const Text(
+                                            //       'Go to Add Exercise Page'),
+                                            // ),
+
+                                            const SizedBox(height: 20),
+
+                                            ///
+                                            /// TESTING ONLY
+                                            ///
+                                            ///////////////////////////////////////////////////////
+                                            ///
+                                            // if (Provider.of<LoadBarbellBlocNotifier>(
+                                            //         context,
+                                            //         listen: true)
+                                            //     .isKeyboardVisible)
+                                            //   Container(
+                                            //     width:
+                                            //         MediaQuery.of(context).size.width,
+                                            //     child: Row(
+                                            //       // alignment: Alignment
+                                            //       //     .centerRight, // Positions the child on the right/ Takes up all available space
+                                            //       children: [
+                                            //         // Other Widgets to the left
+                                            //         Spacer(),
+                                            //         Spacer(),
+                                            //         ElevatedButton(
+                                            //           onPressed: () {
+                                            //             FocusScope.of(context)
+                                            //                 .unfocus(); // Dismiss keyboard
+                                            //           },
+                                            //           child: Text('Dismiss Keyboard'),
+                                            //         ),
+                                            //       ], // Widget positioned on the right
+                                            //     ),
+                                            //   ), // Conditionally render the button
+
+                                            // // Floating button
+                                            // if (keyboardVisible)
+                                            //   // if (Provider.of<
+                                            //   //             LoadBarbellBlocNotifier>(
+                                            //   //         context,
+                                            //   //         listen: true)
+                                            //   //     .isKeyboardVisible)
+                                            //   Positioned(
+                                            //     bottom: MediaQuery.of(context)
+                                            //         .viewInsets
+                                            //         .bottom,
+                                            //     left: 0,
+                                            //     right: 0,
+                                            //     child: Container(
+                                            //       color:
+                                            //           Colors.white.withOpacity(0.8),
+                                            //       padding:
+                                            //           const EdgeInsets.symmetric(
+                                            //               vertical: 8.0),
+                                            //       child: Center(
+                                            //         child: ElevatedButton(
+                                            //           onPressed: () {
+                                            //             FocusScope.of(context)
+                                            //                 .unfocus(); // Dismiss keyboard
+                                            //           },
+                                            //           child: const Text(
+                                            //               'Dismiss Keyboard'),
+                                            //         ),
+                                            //       ),
+                                            //     ),
+                                            //   ),
+
+                                            ExerciseDetailsWidget(
+                                                exercise:
+                                                    exercise), // Add the ExerciseDetailsPage
+                                            //       ],
+                                            //     ),
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ),
-                                    ),
-
-                                    ///
-                                    /// FIXED Positioned widget
-                                    ///
-                                    GestureDetector(
-                                        onTap: () async {
-                                          setState(() {
-                                            bRotateIronMasterView =
-                                                !bRotateIronMasterView;
-
-                                            if (bRotateIronMasterView == true) {
-                                              _rotateDumbbellAnimController
-                                                  .forward();
-                                              _rotateWeightTextAnimController
-                                                  .forward();
-                                            } else {
-                                              _rotateDumbbellAnimController
-                                                  .reverse();
-                                              _rotateWeightTextAnimController
-                                                  .reverse();
-                                            }
-                                          });
-
-                                          /// manage the state of each value
-
-                                          // RotateIronMasterView = !gRotateIronMasterView;
-
-                                          Provider.of<WeightRackBlocNotifier>(
-                                                      context,
-                                                      listen: false)
-                                                  .isRotatedViewMode =
-                                              bRotateIronMasterView;
-                                        },
-                                        child: (bRotateIronMasterView)
-                                            ? Icon(Icons.rotate_right_sharp,
-                                                color:
-                                                    (snapshotBrightness.data ==
-                                                            Brightness.light)
-                                                        ? Colors.black
-                                                        : Colors.white,
-                                                size: 36)
-                                            : Icon(Icons.rotate_left_sharp,
-                                                color:
-                                                    (snapshotBrightness.data ==
-                                                            Brightness.light)
-                                                        ? Colors.black
-                                                        : Colors.white,
-                                                size: 36)),
-                                    ///////////////
-                                    ///
-                                    ///
-                                    ///
-                                    _dumbbellSetChangedCallbackFunction(
-                                        context),
-
-                                    _weightCorrectionValueChangedCallbackFunction(
-                                        context),
-
-                                    // _useTopLeft22lbCheckboxChangedCallbackFunction(
-                                    //     context),
-
-                                    _useBottomRight22lbCheckboxChangedCallbackFunction(
-                                        context),
-
-                                    (Provider.of<WeightRackBlocNotifier>(
-                                                    context,
-                                                    listen: true)
-                                                .ironMasterBottomViewWeightIndex !=
-                                            _ironMasterBottomViewWeightIndex)
-                                        ? _useBottomLeftRightButtonPressedCallbackFunction(
-                                            context)
-                                        : Container(),
-
-                                    ///////////////
-                                    ///
-                                    ///
-                                    ///
-
-                                    // Divider(
-                                    //   color: Colors.deepOrangeAccent,
-                                    // ),
-
-                                    ///
-                                    /// IRON MASTER - Use the Nested Plates and Enter Weight Query for DEBUG.
-                                    ///
-                                    // (Provider.of<BarbellDisplayListBlocNotifier>(context,
-                                    //                 listen: true)
-                                    //             .changedPlates ==
-                                    //         true)
-                                    //     ? testNestedScrollbar(_barbell)
-                                    //     : (Container()),
-
-                                    // Divider(
-                                    //   color: Colors.deepOrangeAccent,
-                                    // ),
-
-                                    ///////////////
-                                    ///
-                                    ///
-                                    ///
-                                    // _displayQueryEnterWeight(),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                ///////////////
+                                ///
+                                ///
+                                ///
+                                _dumbbellSetChangedCallbackFunction(context),
+
+                                _weightCorrectionValueChangedCallbackFunction(
+                                    context),
+
+                                _useBottomRight22lbCheckboxChangedCallbackFunction(
+                                    context),
+
+                                _useBottomLeftRightButtonPressedCallbackFunction(
+                                    context),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    if (Provider.of<LoadBarbellBlocNotifier>(context,
+                            listen: true)
+                        .isKeyboardVisible)
+                      Positioned(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        // left: 0,
+                        // right: MediaQuery.of(context).viewInsets.left - 200,
+                        right: 0,
+                        child: Container(
+                          // color: Colors.white.withOpacity(0.8),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Center(
+                            // child: IconButton(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                FocusScope.of(context)
+                                    .unfocus(); // Dismiss keyboard
+                              },
+                              child: Icon(Icons.keyboard_hide,
+                                  // icon: const Icon(Icons.keyboard_hide,
+                                  // color: Colors.white,
+                                  // color: Colors.black.withAlpha(128),
+                                  size: 36), //Text('Dismiss Keyboard'),
+                            ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
+                        ),
+                      ),
+                  ],
+                );
+              }),
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
     // ,
     // ); // WillPopScope
   }

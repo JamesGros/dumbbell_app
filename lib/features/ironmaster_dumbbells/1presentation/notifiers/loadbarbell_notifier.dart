@@ -268,4 +268,20 @@ class LoadBarbellBlocNotifier extends ChangeNotifier {
     _boringButBigDropdownValue = data;
     notifyListeners();
   }
+
+  bool _isKeyboardVisible = false;
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // getter/setter for isKeyboardVisible
+  //
+  ///////////////////////////////////////////////////////////////////////////
+
+  // getter
+  bool get isKeyboardVisible => _isKeyboardVisible;
+
+  // setter
+  set isKeyboardVisible(bool data) {
+    _isKeyboardVisible = data;
+    notifyListeners();
+  }
 }
